@@ -3,7 +3,7 @@
 build the connector:
 
 ```bash
-./gradlew edc-edps-extension:connector:build`
+./gradlew edc-edps-extension:connector:build
 ```
 
 run the connector:
