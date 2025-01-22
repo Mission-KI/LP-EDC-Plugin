@@ -15,13 +15,16 @@ import org.eclipse.edc.spi.monitor.Monitor;
 @Path("/")
 public class EdpController {
 
-    @Inject
-    private Monitor monitor;
+    private Monitor logger;
+
+    public EdpController(Monitor monitor) {
+        this.logger = monitor;
+    }
 
     @GET
     @Path("edp")
     public Response createEdp() {
-        monitor.info("Creating EDP");
+        logger.info("Creating EDP job...");
 
         return Response.status(Response.Status.OK)
                 .entity("EDP created successfully")

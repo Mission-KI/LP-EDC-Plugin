@@ -14,6 +14,8 @@ import org.eclipse.edc.web.spi.WebService;
  */
 public class EdpServiceExtension implements ServiceExtension {
 
+    public static final String NAME = "EdpServiceExtension";
+
     @Inject
     private TypeTransformerRegistry registry;
 
@@ -23,6 +25,11 @@ public class EdpServiceExtension implements ServiceExtension {
     private Monitor logger;
 
     @Override
+    public String name() {
+        return NAME;
+    }
+
+    @Override
     public void initialize(ServiceExtensionContext context) {
         logger = context.getMonitor();
         logger.info("EdpServiceExtension initialized");
@@ -30,7 +37,7 @@ public class EdpServiceExtension implements ServiceExtension {
         var transformer = new EdpMapper();
         registry.register(transformer);
 
-        var edpController = new EdpController();
+        var edpController = new EdpController(logger);
         webService.registerResource(edpController);
     }
 
