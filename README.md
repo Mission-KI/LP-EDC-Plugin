@@ -12,4 +12,9 @@ run the connector:
 java -Dedc.keystore=app-edc-edps-demo/resources/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.fs.config=-Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties -jar app-edc-edps-demo/connector/build/libs/connector.jar
 ```
 
-dummy change
+# edp calls
+
+create edp
+```bash
+curl http://localhost:19191/api/edp
+```
