@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.edc.sample.runtime;
+package io.nexyo.edp.extensions.services;
 
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.security.Vault;
@@ -81,6 +81,8 @@ public class SeedVaultExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
+        var logger = context.getMonitor();
+        logger.info("SeedVaultExtension initialized");
         vault.storeSecret("public-key", PUBLIC_KEY);
         vault.storeSecret("private-key", PRIVATE_KEY);
     }

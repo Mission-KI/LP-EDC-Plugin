@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Runner" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="io.nexyo.edp.extensions.Runner" />
+    <module name="edc-edps-extension.edc-edps-extension.connector.main" />
+    <option name="VM_PARAMETERS" value="-Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="io.nexyo.edp.extensions.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

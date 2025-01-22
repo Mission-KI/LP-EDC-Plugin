@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.edc.transfer.data.plane.signaling)
     implementation(libs.edc.transfer.pull.http.receiver)
     implementation(libs.edc.validator.data.address.http.data)
+    implementation(libs.edc.boot)
 
     implementation(libs.edc.edr.cache.api)
     implementation(libs.edc.edr.store.core)
@@ -46,8 +47,6 @@ dependencies {
     implementation(libs.edc.data.plane.core)
     implementation(libs.edc.data.plane.http)
     implementation(libs.edc.data.plane.iam)
-
-    implementation(project(":nexyo-edps-edc-extension"))
 }
 
 application {
