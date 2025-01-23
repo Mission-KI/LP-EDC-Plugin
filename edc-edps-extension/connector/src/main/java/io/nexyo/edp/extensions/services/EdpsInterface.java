@@ -1,0 +1,68 @@
+package io.nexyo.edp.extensions.services;
+
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+/**
+ * RESTful interface for managing EDP (Enterprise Data Processing) jobs and their results.
+ * Provides endpoints for creating, monitoring, and retrieving results from EDP jobs.
+ */
+@Path("/edp")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public interface EdpsInterface {
+
+    /**
+     * Retrieves all EDP jobs associated with a specific asset.
+     *
+     * @param assetId The unique identifier of the asset to retrieve jobs for
+     * @return Response containing the list of EDP jobs for the specified asset
+     */
+    @GET
+    @Path("/{assetId}/jobs")
+    Response getEdpsJob(@PathParam("assetId") String assetId);
+
+    /**
+     * Creates a new EDP job for a specific asset and submits the associated file to EDP.
+     *
+     * @param assetId The unique identifier of the asset to create a job for
+     * @return Response containing the details of the created job
+     */
+    @POST
+    @Path("/{assetId}/job")
+    Response createEdpsJob(@PathParam("assetId") String assetId);
+
+    /**
+     * Retrieves the current status of a specific EDP job.
+     *
+     * @param assetId The unique identifier of the asset associated with the job
+     * @param jobId   The unique identifier of the job to check status for
+     * @return Response containing the current status of the specified job
+     */
+    @GET
+    @Path("/{assetId}/job/{jobId}/status")
+    Response getEdpsJobStatus(@PathParam("assetId") String assetId,
+                              @PathParam("jobId") String jobId);
+
+    /**
+     * Processes the result of an EDP job and creates a new asset from the result data.
+     * Retrieves the result from EDP and stores the result file in the system.
+     *
+     * @param assetId     The unique identifier of the original asset
+     * @param jobId       The unique identifier of the completed job
+     * @param requestBody The request payload containing result processing parameters
+     * @return Response containing the details of the newly created result asset
+     */
+    @POST
+    @Path("/{assetId}/job/{jobId}/result")
+    Response createEdpsJobResultAsset(@PathParam("assetId") String assetId,
+                                      @PathParam("jobId") String jobId,
+                                      String requestBody);
+}

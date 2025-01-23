@@ -28,7 +28,5 @@ dependencyResolutionManagement {
     }
 }
 
-include("app-edc-edps-demo:connector")
-include("nexyo-edps-edc-extension")
-
+include("edc-edps-extension:connector")
 include(":util:http-request-logger")

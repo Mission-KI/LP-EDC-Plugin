@@ -10,6 +10,8 @@ restAssured = "5.5.0"
 rsApi = "4.0.0"
 testcontainers = "1.20.4"
 kafkaClients = "3.9.0"
+jakarta-json-api = "2.1.2"
+yasson = "3.0.3"
 
 [libraries]
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
@@ -79,6 +81,9 @@ edc-fc-spi-core = { module = "org.eclipse.edc:federated-catalog-spi", version.re
 edc-fc-core = { module = "org.eclipse.edc:federated-catalog-core", version.ref = "edc" }
 edc-fc-ext-api = { module = "org.eclipse.edc:federated-catalog-api", version.ref = "edc" }
 edc-fc-spi-crawler = { module = "org.eclipse.edc:crawler-spi", version.ref = "edc" }
+
+jakarta-json-api = { module = "jakarta.json:jakarta.json-api", version.ref = "jakarta-json-api" }
+yasson = { module = "org.eclipse:yasson", version.ref = "yasson" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
