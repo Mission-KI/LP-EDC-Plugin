@@ -1,8 +1,13 @@
 package io.nexyo.edp.extensions.services;
 
 
-import io.nexyo.edp.extensions.models.EdpsJobModel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
+import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.LoggingUtils;
+import io.nexyo.edp.extensions.exceptions.EdpException;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
@@ -19,17 +24,19 @@ import jakarta.json.bind.Jsonb;
 public class EdpsService {
 
     private final Monitor logger;
-    Client client = ClientBuilder.newClient();
-    String baseUrl;
-    String createEdpsJobUrl;
+    private Client client = ClientBuilder.newClient();
+    private String baseUrl;
+    private String createEdpsJobUrl;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public EdpsService(String baseUrl) {
         this.logger = LoggingUtils.getLogger();
         this.baseUrl = baseUrl;
         this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public EdpsJobModel createEdpsJob(String assetId) {
+    public EdpsJobResponseDto createEdpsJob(String assetId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
 
         Jsonb jsonb = JsonbBuilder.create();
@@ -66,21 +73,22 @@ public class EdpsService {
 
         String jsonRequestBody = jsonb.toJson(requestBody);
 
-        // Send HTTP POST request
         Response apiResponse = client.target(createEdpsJobUrl)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 
-        // Read response as JSON
         String responseBody = apiResponse.readEntity(String.class);
         client.close();
 
-        if (apiResponse.getStatus() == 201 || apiResponse.getStatus() == 200) {
-            // Convert JSON response to EdpsJobModel
-            return jsonb.fromJson(responseBody, EdpsJobModel.class);
-        } else {
+        if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() <= 300)) {
             logger.warning("Failed to create EDPS job: " + responseBody);
-            throw new RuntimeException("EDPS job creation failed: " + responseBody);
+            throw new EdpException("EDPS job creation failed: " + responseBody);
+        }
+
+        try {
+            return this.mapper.readValue(responseBody, EdpsJobResponseDto.class);
+        } catch (JsonProcessingException e) {
+            throw new EdpException(e);
         }
     }
 }

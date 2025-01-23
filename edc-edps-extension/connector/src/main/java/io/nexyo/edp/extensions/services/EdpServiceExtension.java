@@ -25,8 +25,6 @@ public class EdpServiceExtension implements ServiceExtension {
 
     private Monitor logger;
 
-    private static LoggingUtils LoggingUtils;
-
     @Override
     public String name() {
         return NAME;
@@ -44,7 +42,6 @@ public class EdpServiceExtension implements ServiceExtension {
         var edpsController = new EdpsController();
         webService.registerResource(edpsController);
     }
-
 
     @Override
     public void shutdown() {

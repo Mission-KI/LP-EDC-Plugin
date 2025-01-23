@@ -4,17 +4,20 @@ import org.eclipse.edc.spi.monitor.Monitor;
 
 public class LoggingUtils {
 
-    private static Monitor LOGGER;
+    private static volatile Monitor LOGGER;
 
     LoggingUtils() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static void setLogger(Monitor monitor) {
+    public static synchronized void setLogger(Monitor monitor) {
         LOGGER = monitor;
     }
 
-    public static Monitor getLogger() {
+    public static synchronized Monitor getLogger() {
+        if (LOGGER == null) {
+            throw new IllegalStateException("Logger not initialized. Call setLogger() first.");
+        }
         return LOGGER;
     }
 }

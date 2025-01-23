@@ -1,0 +1,117 @@
+package io.nexyo.edp.extensions.dtos.internal;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.UUID;
+
+/**
+ * Represents a job model in the EDP system.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class EdpsJobDto {
+
+    @JsonProperty("uuid")
+    private String uuid;
+
+    @JsonProperty("job_id")
+    private String jobUuid;
+
+    @JsonProperty("state")
+    private String state;
+
+    @JsonProperty("state_detail")
+    private String details;
+
+    /**
+     * Default constructor.
+     */
+    public EdpsJobDto() {
+        this.uuid = UUID.randomUUID().toString();
+    }
+
+    /**
+     * Constructs an EdpsJobModel with specified details.
+     *
+     * @param uuid     the unique identifier of the job model
+     * @param jobUuid  the unique identifier of the job
+     * @param status   the current status of the job
+     */
+    public EdpsJobDto(String uuid, String jobUuid, String status) {
+        this.uuid = uuid;
+        this.jobUuid = jobUuid;
+        this.state = status;
+    }
+
+    /**
+     * Gets the unique identifier of the job model.
+     *
+     * @return the uuid
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Sets the unique identifier of the job model.
+     *
+     * @param uuid the uuid to set
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    /**
+     * Gets the unique identifier of the job.
+     *
+     * @return the jobUuid
+     */
+    public String getJobUuid() {
+        return jobUuid;
+    }
+
+    /**
+     * Sets the unique identifier of the job.
+     *
+     * @param jobUuid the jobUuid to set
+     */
+    public void setJobUuid(String jobUuid) {
+        this.jobUuid = jobUuid;
+    }
+
+    /**
+     * Gets the current status of the job.
+     *
+     * @return the status
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
+     * Sets the current status of the job.
+     *
+     * @param state the status to set
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     * Retrieves the details.
+     *
+     * @return the current details.
+     */
+    public String getDetails() {
+        return details;
+    }
+
+    /**
+     * Sets the details.
+     *
+     * @param details the new details to set.
+     */
+    public void setDetails(String details) {
+        this.details = details;
+    }
+}

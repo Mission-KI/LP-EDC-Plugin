@@ -15,8 +15,8 @@ java -Dedc.keystore=app-edc-edps-demo/resources/certs/cert.pfx -Dedc.keystore.pa
 # edp calls
 
 create edp
-```bash
-curl -X POST http://localhost:19191/api/edp
+```bash 
+curl -X POST http://localhost:19191/api/edps
 ```
 
 start local demo http server

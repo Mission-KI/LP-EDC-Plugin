@@ -1,14 +1,15 @@
 package io.nexyo.edp.extensions.controllers;
 
 import com.apicatalog.jsonld.StringUtils;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.LoggingUtils;
+import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
+import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
-import io.nexyo.edp.extensions.mappers.EdpsMapper;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -25,15 +26,14 @@ public class EdpsController implements EdpsInterface {
 
     private Monitor logger;
     private final ConfigurationLoader configurationLoader;
-    private EdpsMapper mapper;
     private EdpsService edpsService;
     private final String EDPS_API_URL_KEY = "epd.edps.api";
-    private String baseURl;
-
+    private final String baseURl;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public EdpsController() {
         this.logger = LoggingUtils.getLogger();
-        this.mapper = new EdpsMapper();
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         this.configurationLoader = new ConfigurationLoader(
                 new ServiceLocatorImpl(),
@@ -64,12 +64,13 @@ public class EdpsController implements EdpsInterface {
     @Override
     public Response createEdpsJob(String assetId) {
         logger.info("Creating EDP job...");
-        var edpsJob = this.edpsService.createEdpsJob(assetId);
+        var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId);
 
-        // todo: use object mapper or transformer context to map the model to dto
-        var edpsJobDto = mapper.transform(edpsJob, null);
+        var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
 
-        return Response.status(Response.Status.OK).entity(edpsJobDto).build();
+        return Response.status(Response.Status.OK)
+                .entity(edpsJobDto)
+                .build();
     }
 
     @Override
