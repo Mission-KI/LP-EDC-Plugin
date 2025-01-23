@@ -2,7 +2,7 @@ package io.nexyo.edp.extensions.controllers;
 
 import com.apicatalog.jsonld.StringUtils;
 import io.nexyo.edp.extensions.exceptions.EdpException;
-import io.nexyo.edp.extensions.mappers.EdpMapper;
+import io.nexyo.edp.extensions.mappers.EdpsMapper;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import jakarta.ws.rs.Consumes;
@@ -20,20 +20,20 @@ import org.eclipse.edc.spi.monitor.Monitor;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Path("/edp")
-public class EdpController implements EdpsInterface {
+public class EdpsController implements EdpsInterface {
 
     private Monitor logger;
     private final ConfigurationLoader configurationLoader;
-    private EdpMapper mapper;
+    private EdpsMapper mapper;
     private EdpsService edpsService;
     private final String EDPS_API_URL_KEY = "epd.edps.api";
     private String baseURl;
 
 
-    public EdpController(Monitor monitor) {
+    public EdpsController(Monitor monitor) {
         this.logger = monitor;
         this.edpsService = new EdpsService(logger);
-        this.mapper = new EdpMapper();
+        this.mapper = new EdpsMapper();
 
         this.configurationLoader = new ConfigurationLoader(new ServiceLocatorImpl(), EnvironmentVariables.ofDefault(), SystemProperties.ofDefault());
         var config = this.configurationLoader.loadConfiguration(monitor);

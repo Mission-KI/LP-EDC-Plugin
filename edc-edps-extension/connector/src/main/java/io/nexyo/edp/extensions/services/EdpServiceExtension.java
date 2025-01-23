@@ -1,7 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
-import io.nexyo.edp.extensions.controllers.EdpController;
-import io.nexyo.edp.extensions.mappers.EdpMapper;
+import io.nexyo.edp.extensions.controllers.EdpsController;
+import io.nexyo.edp.extensions.mappers.EdpsMapper;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.system.ServiceExtension;
@@ -34,11 +34,11 @@ public class EdpServiceExtension implements ServiceExtension {
         logger = context.getMonitor();
         logger.info("EdpServiceExtension initialized");
 
-        var transformer = new EdpMapper();
+        var transformer = new EdpsMapper();
         registry.register(transformer);
 
-        var edpController = new EdpController(logger);
-        webService.registerResource(edpController);
+        var edpsController = new EdpsController(logger);
+        webService.registerResource(edpsController);
     }
 
 

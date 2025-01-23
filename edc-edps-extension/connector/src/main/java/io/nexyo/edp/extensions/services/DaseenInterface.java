@@ -9,8 +9,8 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface DaseenInterface {
 
-    /** Publish edp asset (is an EDP result) */
+    /** Publish edp asset (is an EDPS result) */
     @POST
-    @Path("/{edpAssetId}")
-    Response publishEdpAssetToDaseen(@PathParam("edpAssetId") String edpAssetId);
+    @Path("/{edpsAssetId}/publish")
+    Response publishEdpsAssetToDaseen(@PathParam("edpsAssetId") String edpsAssetId);
 }

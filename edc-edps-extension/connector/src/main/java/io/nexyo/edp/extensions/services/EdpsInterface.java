@@ -11,49 +11,49 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 /**
- * RESTful interface for managing EDP (Enterprise Data Processing) jobs and their results.
- * Provides endpoints for creating, monitoring, and retrieving results from EDP jobs.
+ * RESTful interface for managing EDPS (Enterprise Data Processing) jobs and their results.
+ * Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
  */
-@Path("/edp")
+@Path("/edps")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface EdpsInterface {
 
     /**
-     * Retrieves all EDP jobs associated with a specific asset.
+     * Retrieves all EDPS jobs associated with a specific asset.
      *
      * @param assetId The unique identifier of the asset to retrieve jobs for
-     * @return Response containing the list of EDP jobs for the specified asset
+     * @return Response containing the list of EDPS jobs for the specified asset
      */
     @GET
     @Path("/{assetId}/jobs")
     Response getEdpsJob(@PathParam("assetId") String assetId);
 
     /**
-     * Creates a new EDP job for a specific asset and submits the associated file to EDP.
+     * Creates a new EDPS job for a specific asset and submits the associated file to EDPS.
      *
      * @param assetId The unique identifier of the asset to create a job for
      * @return Response containing the details of the created job
      */
     @POST
-    @Path("/{assetId}/job")
+    @Path("/{assetId}/jobs")
     Response createEdpsJob(@PathParam("assetId") String assetId);
 
     /**
-     * Retrieves the current status of a specific EDP job.
+     * Retrieves the current status of a specific EDPS job.
      *
      * @param assetId The unique identifier of the asset associated with the job
      * @param jobId   The unique identifier of the job to check status for
      * @return Response containing the current status of the specified job
      */
     @GET
-    @Path("/{assetId}/job/{jobId}/status")
+    @Path("/{assetId}/jobs/{jobId}/status")
     Response getEdpsJobStatus(@PathParam("assetId") String assetId,
                               @PathParam("jobId") String jobId);
 
     /**
-     * Processes the result of an EDP job and creates a new asset from the result data.
-     * Retrieves the result from EDP and stores the result file in the system.
+     * Processes the result of an EDPS job and creates a new asset from the result data.
+     * Retrieves the result from EDPS and stores the result file in the system.
      *
      * @param assetId     The unique identifier of the original asset
      * @param jobId       The unique identifier of the completed job
@@ -61,7 +61,7 @@ public interface EdpsInterface {
      * @return Response containing the details of the newly created result asset
      */
     @POST
-    @Path("/{assetId}/job/{jobId}/result")
+    @Path("/{assetId}/jobs/{jobId}/result")
     Response createEdpsJobResultAsset(@PathParam("assetId") String assetId,
                                       @PathParam("jobId") String jobId,
                                       String requestBody);

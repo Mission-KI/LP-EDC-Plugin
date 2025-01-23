@@ -1,7 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
 
-import io.nexyo.edp.extensions.models.EdpJobModel;
+import io.nexyo.edp.extensions.models.EdpsJobModel;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
@@ -24,7 +24,7 @@ public class EdpsService {
         this.logger = monitor;
     }
 
-    public EdpJobModel createEdpsJob(String assetId, String baseUrl) {
+    public EdpsJobModel createEdpsJob(String assetId, String baseUrl) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
 
         Client client = ClientBuilder.newClient();
@@ -76,11 +76,11 @@ public class EdpsService {
         client.close();
 
         if (apiResponse.getStatus() == 201 || apiResponse.getStatus() == 200) {
-            // Convert JSON response to EdpJobModel
-            return jsonb.fromJson(responseBody, EdpJobModel.class);
+            // Convert JSON response to EdpsJobModel
+            return jsonb.fromJson(responseBody, EdpsJobModel.class);
         } else {
-            logger.warning("Failed to create EDP job: " + responseBody);
-            throw new RuntimeException("EDP job creation failed: " + responseBody);
+            logger.warning("Failed to create EDPS job: " + responseBody);
+            throw new RuntimeException("EDPS job creation failed: " + responseBody);
         }
     }
 }

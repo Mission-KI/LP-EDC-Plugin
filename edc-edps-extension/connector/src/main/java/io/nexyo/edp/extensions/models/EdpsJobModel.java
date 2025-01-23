@@ -1,4 +1,4 @@
 package io.nexyo.edp.extensions.models;
 
-public class EdpJobModel {
+public class EdpsJobModel {
 }
