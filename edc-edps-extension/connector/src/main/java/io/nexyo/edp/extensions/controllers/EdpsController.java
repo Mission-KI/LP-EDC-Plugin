@@ -4,7 +4,6 @@ import com.apicatalog.jsonld.StringUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.LoggingUtils;
-import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
 import io.nexyo.edp.extensions.services.EdpsInterface;
@@ -27,7 +26,7 @@ public class EdpsController implements EdpsInterface {
     private Monitor logger;
     private final ConfigurationLoader configurationLoader;
     private EdpsService edpsService;
-    private final String EDPS_API_URL_KEY = "epd.edps.api";
+    private final String edpsApiUrlKey = "epd.edps.api";
     private final String baseURl;
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -42,7 +41,7 @@ public class EdpsController implements EdpsInterface {
         );
 
         var config = this.configurationLoader.loadConfiguration(this.logger);
-        this.baseURl = config.getConfig(EDPS_API_URL_KEY).getString("url");
+        this.baseURl = config.getConfig(edpsApiUrlKey).getString("url");
 
         if (StringUtils.isBlank(baseURl)) {
             throw new EdpException("EDPS API URL is not configured");
@@ -65,8 +64,9 @@ public class EdpsController implements EdpsInterface {
     public Response createEdpsJob(String assetId) {
         logger.info("Creating EDP job...");
         var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId);
-
         var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
+
+        this.edpsService.sendAnalysisData(edpsJobDto);
 
         return Response.status(Response.Status.OK)
                 .entity(edpsJobDto)

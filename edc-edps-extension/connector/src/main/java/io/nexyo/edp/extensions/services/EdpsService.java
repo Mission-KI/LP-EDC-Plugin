@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import jakarta.json.bind.Jsonb;
 
 public class EdpsService {
@@ -34,6 +35,13 @@ public class EdpsService {
         this.baseUrl = baseUrl;
         this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    // todo: EdpsJobDto should be a model
+    public void sendAnalysisData(EdpsJobDto edpsJobDto) {
+        // 1. get asset by assetUuid
+        // 2. download the referenced file (dataplane should do this)
+        // 3. dataplane post the file to edps api
     }
 
     public EdpsJobResponseDto createEdpsJob(String assetId) {
