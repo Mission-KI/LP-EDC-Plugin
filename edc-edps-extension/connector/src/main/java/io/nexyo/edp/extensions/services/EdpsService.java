@@ -40,7 +40,31 @@ public class EdpsService {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
 
         Jsonb jsonb = JsonbBuilder.create();
-        var requestBody = new HashMap<String, Object>();
+        var requestBody = createRequestBody(assetId);
+
+        String jsonRequestBody = jsonb.toJson(requestBody);
+
+        Response apiResponse = client.target(createEdpsJobUrl)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
+
+        String responseBody = apiResponse.readEntity(String.class);
+        client.close();
+
+        if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() <= 300)) {
+            logger.warning("Failed to create EDPS job: " + responseBody);
+            throw new EdpException("EDPS job creation failed: " + responseBody);
+        }
+
+        try {
+            return this.mapper.readValue(responseBody, EdpsJobResponseDto.class);
+        } catch (JsonProcessingException e) {
+            throw new EdpException(e.getMessage());
+        }
+    }
+
+    private Map<String, Object> createRequestBody(String assetId) {
+        Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("assetId", assetId);
         requestBody.put("name", "Example Analysis Job");
         requestBody.put("url", "https://example.com/data");
@@ -71,24 +95,6 @@ public class EdpsService {
         requestBody.put("dataLog", "Data Log Entry");
         requestBody.put("freely_available", true);
 
-        String jsonRequestBody = jsonb.toJson(requestBody);
-
-        Response apiResponse = client.target(createEdpsJobUrl)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
-
-        String responseBody = apiResponse.readEntity(String.class);
-        client.close();
-
-        if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() <= 300)) {
-            logger.warning("Failed to create EDPS job: " + responseBody);
-            throw new EdpException("EDPS job creation failed: " + responseBody);
-        }
-
-        try {
-            return this.mapper.readValue(responseBody, EdpsJobResponseDto.class);
-        } catch (JsonProcessingException e) {
-            throw new EdpException(e);
-        }
+        return requestBody;
     }
 }
