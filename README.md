@@ -18,3 +18,18 @@ create edp
 ```bash
 curl http://localhost:19191/api/edp
 ```
+
+start local demo http server
+```bash
+python ./util/http-demo-server/server.py
+```
+
+demo.csv file at
+```
+http://localhost:8080/data.csv
+```
+
+post demo data at
+```bash
+curl -X POST -F "file=@yourfile.zip" http://localhost:8080/upload
+```

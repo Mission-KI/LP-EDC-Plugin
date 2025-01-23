@@ -54,7 +54,7 @@ public class EdpController implements EdpsInterface {
     public Response createEdpsJob(String assetId) {
         logger.info("Creating EDP job...");
 
-        var edpsJob = this.edpsService.createEdpsJob(assetId);
+        var edpsJob = this.edpsService.createEdpsJob(assetId, this.baseURl);
 
         // todo: use object mapper or transformer context to map the model to dto
         var edpsJobDto = mapper.transform(edpsJob, null);
