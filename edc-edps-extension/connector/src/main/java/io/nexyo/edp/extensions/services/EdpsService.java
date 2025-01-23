@@ -2,6 +2,7 @@ package io.nexyo.edp.extensions.services;
 
 
 import io.nexyo.edp.extensions.models.EdpsJobModel;
+import io.nexyo.edp.extensions.LoggingUtils;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
@@ -18,21 +19,20 @@ import jakarta.json.bind.Jsonb;
 public class EdpsService {
 
     private final Monitor logger;
-    // api client goes here
+    Client client = ClientBuilder.newClient();
+    String baseUrl;
+    String createEdpsJobUrl;
 
-    public EdpsService(Monitor monitor) {
-        this.logger = monitor;
+    public EdpsService(String baseUrl) {
+        this.logger = LoggingUtils.getLogger();
+        this.baseUrl = baseUrl;
+        this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
     }
 
-    public EdpsJobModel createEdpsJob(String assetId, String baseUrl) {
+    public EdpsJobModel createEdpsJob(String assetId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
 
-        Client client = ClientBuilder.newClient();
         Jsonb jsonb = JsonbBuilder.create();
-
-        // Construct API URL
-        String apiUrl = baseUrl + "/v1/dataspace/analysisjob";
-
         var requestBody = new HashMap<String, Object>();
         requestBody.put("assetId", assetId);
         requestBody.put("name", "Example Analysis Job");
@@ -67,7 +67,7 @@ public class EdpsService {
         String jsonRequestBody = jsonb.toJson(requestBody);
 
         // Send HTTP POST request
-        Response apiResponse = client.target(apiUrl)
+        Response apiResponse = client.target(createEdpsJobUrl)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 

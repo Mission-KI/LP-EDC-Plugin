@@ -2,6 +2,7 @@ package io.nexyo.edp.extensions.services;
 
 import io.nexyo.edp.extensions.controllers.EdpsController;
 import io.nexyo.edp.extensions.mappers.EdpsMapper;
+import io.nexyo.edp.extensions.LoggingUtils;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.system.ServiceExtension;
@@ -24,6 +25,8 @@ public class EdpServiceExtension implements ServiceExtension {
 
     private Monitor logger;
 
+    private static LoggingUtils LoggingUtils;
+
     @Override
     public String name() {
         return NAME;
@@ -32,12 +35,13 @@ public class EdpServiceExtension implements ServiceExtension {
     @Override
     public void initialize(ServiceExtensionContext context) {
         logger = context.getMonitor();
+        LoggingUtils.setLogger(logger);
         logger.info("EdpServiceExtension initialized");
 
         var transformer = new EdpsMapper();
         registry.register(transformer);
 
-        var edpsController = new EdpsController(logger);
+        var edpsController = new EdpsController();
         webService.registerResource(edpsController);
     }
 
