@@ -11,6 +11,10 @@ import io.nexyo.edp.extensions.exceptions.EdpException;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
+import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
+import org.eclipse.edc.connector.dataplane.selector.spi.instance.DataPlaneInstance;
 import org.eclipse.edc.spi.monitor.Monitor;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
@@ -29,12 +33,14 @@ public class EdpsService {
     private String baseUrl;
     private String createEdpsJobUrl;
     private ObjectMapper mapper = new ObjectMapper();
+    private DataplaneService dataplaneService;
 
     public EdpsService(String baseUrl) {
         this.logger = LoggingUtils.getLogger();
         this.baseUrl = baseUrl;
         this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.dataplaneService = new DataplaneService();
     }
 
     // todo: EdpsJobDto should be a model

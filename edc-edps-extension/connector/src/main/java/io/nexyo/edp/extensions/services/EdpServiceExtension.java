@@ -3,6 +3,8 @@ package io.nexyo.edp.extensions.services;
 import io.nexyo.edp.extensions.controllers.EdpsController;
 import io.nexyo.edp.extensions.mappers.EdpsMapper;
 import io.nexyo.edp.extensions.LoggingUtils;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.system.ServiceExtension;
@@ -24,6 +26,12 @@ public class EdpServiceExtension implements ServiceExtension {
     private WebService webService;
 
     private Monitor logger;
+
+    @Inject
+    private DataPlaneClientFactory clientFactory;
+
+    @Inject
+    private DataPlaneSelectorService dataPlaneSelectorService;
 
     @Override
     public String name() {
