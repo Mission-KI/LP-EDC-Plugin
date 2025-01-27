@@ -48,7 +48,7 @@ public class DataplaneService {
         return dataPlaneInstance;
     }
 
-    public void start(String assetId) {
+    public void start(String assetId, DataAddress destinationAddress) {
         var sourceAddress = this.assetIndexer.resolveForAsset(assetId);
 
         if (sourceAddress == null) {
@@ -56,21 +56,16 @@ public class DataplaneService {
             throw new EdpException("No source address found for asset id: " + assetId);
         }
 
-        var dataPlaneInstance = getDataplane(sourceAddress);
-        this.logger.info("Data flow starting with dataplane id: " + dataPlaneInstance.getId());
-
-        var destinationAddress = HttpDataAddress.Builder.newInstance()
-                .type(FlowType.PUSH.toString())
-                .baseUrl("http://localhost:8080/upload") // todo: get from config
-                .build();
+        var dataplaneInstance = getDataplane(sourceAddress);
+        this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
         var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress);
 
-        var result = clientFactory.createClient(dataPlaneInstance)
+        var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)
                 .map(it -> DataFlowResponse.Builder.newInstance()
                         .dataAddress(it.getDataAddress())
-                        .dataPlaneId(dataPlaneInstance.getId())
+                        .dataPlaneId(dataplaneInstance.getId())
                         .build()
                 );
         this.logger.info("Data flow response is: " + result);

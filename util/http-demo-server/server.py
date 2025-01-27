@@ -52,23 +52,33 @@ class CustomHandler(SimpleHTTPRequestHandler):
         """Handles file uploads sent as octet stream and saves them in the results directory."""
         content_type = self.headers.get("Content-Type")
 
-        if content_type != "application/octet-stream":
-            self.send_response(400)
-            self.end_headers()
-            self.wfile.write(b"Invalid content type. Expected application/octet-stream.")
-            return
+        print("--- Incoming POST Request ---")
 
-        file_name = self.headers.get("X-File-Name")  # Custom header to specify the file name
+        # Log the entire request
+        print("--- Request Line ---")
+        print(self.requestline)
+
+        print("--- Headers ---")
+        print(self.headers)
+
+#         if content_type != "application/octet-stream":
+#             self.send_response(400)
+#             self.end_headers()
+#             self.wfile.write(b"Invalid content type. Expected application/octet-stream.")
+#             return
+
+        file_name = "data_eps.zip"  # self.headers.get("X-File-Name")  # Custom header to specify the file name
         if not file_name:
             self.send_response(400)
             self.end_headers()
-            self.wfile.write(b"Missing X-File-Name header.")
+            #self.wfile.write(b"Missing X-File-Name header.")
             return
 
         file_path = os.path.join(RESULTS_DIR, os.path.basename(file_name))
 
         try:
             content_length = int(self.headers.get("Content-Length", 0))
+
             with open(file_path, "wb") as output_file:
                 output_file.write(self.rfile.read(content_length))
 
@@ -79,6 +89,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_response(500)
             self.end_headers()
             self.wfile.write(f"Error saving file: {e}".encode())
+
 
 # Start the server
 if __name__ == "__main__":

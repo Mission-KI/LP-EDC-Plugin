@@ -82,3 +82,17 @@ curl  http://localhost:19193/management/v3/assets/assetId1
 ```bash 
 curl -X POST http://localhost:19191/api/edps/assetId/jobs
 ```
+
+
+
+## MSC
+
+### Test create data upload with python mock server
+
+
+```
+curl -X POST http://localhost:8080/upload \
+     -H "Content-Type: application/octet-stream" \
+     -H "X-File-Name: util/http-demo-server/data/data.csv" \
+     --data-binary @util/http-demo-server/data/data.csv
+```

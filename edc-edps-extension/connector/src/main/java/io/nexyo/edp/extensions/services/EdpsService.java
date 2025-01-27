@@ -15,7 +15,9 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.edc.spi.types.domain.transfer.FlowType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,14 +28,14 @@ public class EdpsService {
     private final Monitor logger;
     private Client client = ClientBuilder.newClient();
     private String baseUrl;
-    private String createEdpsJobUrl;
+    private String createEdpsJobUri;
     private ObjectMapper mapper = new ObjectMapper();
     private DataplaneService dataplaneService;
 
     public EdpsService(String baseUrl, DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         this.baseUrl = baseUrl;
-        this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
+        this.createEdpsJobUri ="v1/dataspace/analysisjob";
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.dataplaneService = dataplaneService;
     }
@@ -43,8 +45,13 @@ public class EdpsService {
         // 1. get asset by assetUuid
         // 2. download the referenced file (dataplane should do this)
         // 3. dataplane post the file to edps api
+        var destinationAddress = HttpDataAddress.Builder.newInstance()
+                .type(FlowType.PUSH.toString())
+                .baseUrl("http://localhost:8080/upload")  // todo: change to edps base url  //  String.format("this.baseUrl/%s/%s/data", this.createEdpsJobUri, edpsJobDto.getJobUuid())
+                .property("header:upload_file", "data.csv")
+                .build();
 
-        this.dataplaneService.start(edpsJobDto.getAssetId());
+        this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress);
     }
 
     public EdpsJobResponseDto createEdpsJob(String assetId) {
@@ -55,7 +62,7 @@ public class EdpsService {
 
         String jsonRequestBody = jsonb.toJson(requestBody);
 
-        Response apiResponse = client.target(createEdpsJobUrl)
+        Response apiResponse = client.target(this.baseUrl + createEdpsJobUri)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 
