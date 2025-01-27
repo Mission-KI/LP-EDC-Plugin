@@ -53,11 +53,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         """Handles file uploads and saves them in the results directory."""
         content_type, params = cgi.parse_header(self.headers.get("Content-Type"))
 
-        if content_type != "multipart/form-data":
-            self.send_response(400)
-            self.end_headers()
-            self.wfile.write(b"Invalid content type")
-            return
+#         if content_type != "multipart/form-data":
+#             self.send_response(400)
+#             self.end_headers()
+#             self.wfile.write(b"Invalid content type")
+#             return
 
         form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={"REQUEST_METHOD": "POST"})
         file_field = form["file"]

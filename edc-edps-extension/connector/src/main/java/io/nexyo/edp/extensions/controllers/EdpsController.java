@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.LoggingUtils;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import jakarta.ws.rs.Consumes;
@@ -23,31 +24,29 @@ import org.eclipse.edc.spi.monitor.Monitor;
 @Consumes(MediaType.APPLICATION_JSON)
 public class EdpsController implements EdpsInterface {
 
-    private Monitor logger;
-    private final ConfigurationLoader configurationLoader;
-    private EdpsService edpsService;
+    private final Monitor logger;
+    private final EdpsService edpsService;
     private final String edpsApiUrlKey = "epd.edps.api";
-    private final String baseURl;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public EdpsController() {
+    public EdpsController(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        this.configurationLoader = new ConfigurationLoader(
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(
                 new ServiceLocatorImpl(),
                 EnvironmentVariables.ofDefault(),
                 SystemProperties.ofDefault()
         );
 
-        var config = this.configurationLoader.loadConfiguration(this.logger);
-        this.baseURl = config.getConfig(edpsApiUrlKey).getString("url");
+        var config = configurationLoader.loadConfiguration(this.logger);
+        String baseURl = config.getConfig(edpsApiUrlKey).getString("url");
 
         if (StringUtils.isBlank(baseURl)) {
             throw new EdpException("EDPS API URL is not configured");
         }
 
-        this.edpsService = new EdpsService(baseURl);
+        this.edpsService = new EdpsService(baseURl, dataplaneService);
     }
 
 
@@ -65,6 +64,7 @@ public class EdpsController implements EdpsInterface {
         logger.info("Creating EDP job...");
         var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId);
         var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
+        edpsJobDto.setAssetId(assetId);
 
         this.edpsService.sendAnalysisData(edpsJobDto);
 

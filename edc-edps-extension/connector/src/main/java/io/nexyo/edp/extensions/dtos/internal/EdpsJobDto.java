@@ -6,13 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 
 /**
- * Represents a job model in the EDP system.
+ * Represents an EDPS job.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdpsJobDto {
 
     @JsonProperty("uuid")
     private String uuid;
+
+    @JsonProperty("asset_id")
+    private String assetId;
 
     @JsonProperty("job_id")
     private String jobUuid;
@@ -113,5 +116,23 @@ public class EdpsJobDto {
      */
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    /**
+     * Retrieves the asset ID.
+     *
+     * @return the asset ID
+     */
+    public String getAssetId() {
+        return assetId;
+    }
+
+    /**
+     * Sets the asset ID.
+     *
+     * @param assetId the asset ID to set
+     */
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 }

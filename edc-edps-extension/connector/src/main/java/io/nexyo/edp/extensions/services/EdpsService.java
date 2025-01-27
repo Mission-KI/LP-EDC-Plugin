@@ -4,27 +4,22 @@ package io.nexyo.edp.extensions.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nexyo.edp.extensions.LoggingUtils;
 import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
-import io.nexyo.edp.extensions.LoggingUtils;
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Entity;
-import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
-import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
-import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
-import org.eclipse.edc.connector.dataplane.selector.spi.instance.DataPlaneInstance;
-import org.eclipse.edc.spi.monitor.Monitor;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.eclipse.edc.spi.monitor.Monitor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import jakarta.json.bind.Jsonb;
 
 public class EdpsService {
 
@@ -35,19 +30,21 @@ public class EdpsService {
     private ObjectMapper mapper = new ObjectMapper();
     private DataplaneService dataplaneService;
 
-    public EdpsService(String baseUrl) {
+    public EdpsService(String baseUrl, DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         this.baseUrl = baseUrl;
         this.createEdpsJobUrl = baseUrl + "v1/dataspace/analysisjob";
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.dataplaneService = new DataplaneService();
+        this.dataplaneService = dataplaneService;
     }
 
-    // todo: EdpsJobDto should be a model
+
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         // 1. get asset by assetUuid
         // 2. download the referenced file (dataplane should do this)
         // 3. dataplane post the file to edps api
+
+        this.dataplaneService.start(edpsJobDto.getAssetId());
     }
 
     public EdpsJobResponseDto createEdpsJob(String assetId) {

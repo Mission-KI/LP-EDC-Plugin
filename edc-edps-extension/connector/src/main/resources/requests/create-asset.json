@@ -2,15 +2,15 @@
   "@context": {
     "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
   },
-  "@id": "assetId",
+  "@id": "assetId1",
   "properties": {
-    "name": "product description",
-    "contenttype": "application/json"
+    "name": "Logistic data",
+    "contenttype": "text/csv"
   },
   "dataAddress": {
     "type": "HttpData",
-    "name": "Test asset",
-    "baseUrl": "https://jsonplaceholder.typicode.com/users",
+    "name": "Data.csv",
+    "baseUrl": "http://localhost:8080/data.csv",
     "proxyPath": "true"
   }
 }
