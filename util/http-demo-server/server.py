@@ -1,7 +1,6 @@
 import os
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
-import cgi
 
 # Configuration
 PORT = 8080
@@ -50,30 +49,36 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(b"Not found")
 
     def handle_file_upload(self):
-        """Handles file uploads and saves them in the results directory."""
-        content_type, params = cgi.parse_header(self.headers.get("Content-Type"))
+        """Handles file uploads sent as octet stream and saves them in the results directory."""
+        content_type = self.headers.get("Content-Type")
 
-#         if content_type != "multipart/form-data":
-#             self.send_response(400)
-#             self.end_headers()
-#             self.wfile.write(b"Invalid content type")
-#             return
+        if content_type != "application/octet-stream":
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Invalid content type. Expected application/octet-stream.")
+            return
 
-        form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={"REQUEST_METHOD": "POST"})
-        file_field = form["file"]
+        file_name = self.headers.get("X-File-Name")  # Custom header to specify the file name
+        if not file_name:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Missing X-File-Name header.")
+            return
 
-        if file_field.filename:
-            file_path = os.path.join(RESULTS_DIR, os.path.basename(file_field.filename))
+        file_path = os.path.join(RESULTS_DIR, os.path.basename(file_name))
+
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
             with open(file_path, "wb") as output_file:
-                output_file.write(file_field.file.read())
+                output_file.write(self.rfile.read(content_length))
 
             self.send_response(201)
             self.end_headers()
             self.wfile.write(b"File uploaded successfully")
-        else:
-            self.send_response(400)
+        except Exception as e:
+            self.send_response(500)
             self.end_headers()
-            self.wfile.write(b"No file uploaded")
+            self.wfile.write(f"Error saving file: {e}".encode())
 
 # Start the server
 if __name__ == "__main__":
