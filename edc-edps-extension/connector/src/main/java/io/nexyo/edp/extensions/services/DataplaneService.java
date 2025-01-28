@@ -4,7 +4,6 @@ import io.nexyo.edp.extensions.LoggingUtils;
 import io.nexyo.edp.extensions.exceptions.EdpException;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
-import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
 import org.eclipse.edc.connector.dataplane.selector.spi.instance.DataPlaneInstance;
@@ -60,6 +59,23 @@ public class DataplaneService {
         this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
         var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress);
+
+        var result = clientFactory.createClient(dataplaneInstance)
+                .start(dataFlowRequest)
+                .map(it -> DataFlowResponse.Builder.newInstance()
+                        .dataAddress(it.getDataAddress())
+                        .dataPlaneId(dataplaneInstance.getId())
+                        .build()
+                );
+        this.logger.info("Data flow response is: " + result);
+    }
+
+
+    public void start(DataAddress sourceAddress, DataAddress destinationAddress) {
+        var dataplaneInstance = getDataplane(sourceAddress);
+        this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
+
+        var dataFlowRequest = createDataFlowRequest(null, sourceAddress, destinationAddress);
 
         var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.LoggingUtils;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
+import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
 import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
@@ -26,27 +27,21 @@ public class EdpsController implements EdpsInterface {
 
     private final Monitor logger;
     private final EdpsService edpsService;
-    private final String edpsApiUrlKey = "epd.edps.api";
     private final ObjectMapper mapper = new ObjectMapper();
 
     public EdpsController(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(
+        var configurationLoader = new ConfigurationLoader(
                 new ServiceLocatorImpl(),
                 EnvironmentVariables.ofDefault(),
                 SystemProperties.ofDefault()
         );
 
         var config = configurationLoader.loadConfiguration(this.logger);
-        String baseURl = config.getConfig(edpsApiUrlKey).getString("url");
 
-        if (StringUtils.isBlank(baseURl)) {
-            throw new EdpException("EDPS API URL is not configured");
-        }
-
-        this.edpsService = new EdpsService(baseURl, dataplaneService);
+        this.edpsService = new EdpsService(config, dataplaneService);
     }
 
 
@@ -57,6 +52,11 @@ public class EdpsController implements EdpsInterface {
         return Response.status(200)
                 .entity("all good")
                 .build();
+    }
+
+    @Override
+    public Response getEdpsJobStatus(String assetId, String jobId) {
+        return null;
     }
 
     @Override
@@ -73,14 +73,15 @@ public class EdpsController implements EdpsInterface {
                 .build();
     }
 
-    @Override
-    public Response getEdpsJobStatus(String assetId, String jobId) {
-        return null;
-    }
 
     @Override
-    public Response createEdpsJobResultAsset(String assetId, String jobId, String requestBody) {
-        return null;
-    }
+    public Response fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
+        logger.info("Fetching EDP result ZIP...");
 
+        this.edpsService.fetchEdpsJobResult(assetId, jobId, edpResultRequestDto);
+
+        return Response.status(Response.Status.OK)
+                .entity("all good")
+                .build();
+    }
 }

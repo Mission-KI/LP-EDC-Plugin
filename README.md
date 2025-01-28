@@ -1,39 +1,3 @@
-# EDC EDPS Extension
-
-build the connector:
-
-```bash
-./gradlew edc-edps-extension:connector:build
-```
-
-run the connector:
-
-```bash
-java -Dedc.keystore=app-edc-edps-demo/resources/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.fs.config=-Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties -jar app-edc-edps-demo/connector/build/libs/connector.jar
-```
-
-# edp calls
-
-create EDPS Job
-```bash 
-curl -X POST http://localhost:19191/api/edps
-```
-
-
-demo.csv file at
-```
-http://localhost:8080/data.csv
-```
-
-post demo data at
-```bash
-curl -X POST -F "file=@yourfile.zip" http://localhost:8080/upload
-```
-
-
-------
-
-
 ## EDP Workflow
 
 
@@ -58,7 +22,7 @@ Alternatively, start the `io/nexyo/edp/extensions/Runner.java` in the IDE.
 
 start local demo http server
 ```bash
-python ./util/http-demo-server/server.py
+python ./util/http-file-server/server.py
 ```
 
 
@@ -84,15 +48,20 @@ curl -X POST http://localhost:19191/api/edps/assetId/jobs
 ```
 
 
+### 3. Get EDPS Result
 
-## MSC
+```bash
+curl -X POST http://localhost:19191/api/edps/assetId1/jobs/{jobId}/result \
+  -H 'content-type: application/json' \
+  -d @edc-edps-extension/connector/src/main/resources/requests/fetch-edps-result.json 
+````
 
-### Test create data upload with python mock server
 
+### 4. Create Result Asset
 
+```bash
+curl -d @edc-edps-extension/connector/src/main/resources/requests/create-result-asset.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
+  -s | jq 
 ```
-curl -X POST http://localhost:8080/upload \
-     -H "Content-Type: application/octet-stream" \
-     -H "X-File-Name: util/http-demo-server/data/data.csv" \
-     --data-binary @util/http-demo-server/data/data.csv
-```
+

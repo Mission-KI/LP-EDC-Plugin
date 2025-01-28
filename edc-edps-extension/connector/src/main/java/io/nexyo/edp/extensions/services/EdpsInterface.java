@@ -1,6 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
 
+import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -52,17 +53,16 @@ public interface EdpsInterface {
                               @PathParam("jobId") String jobId);
 
     /**
-     * Processes the result of an EDPS job and creates a new asset from the result data.
      * Retrieves the result from EDPS and stores the result file in the system.
      *
      * @param assetId     The unique identifier of the original asset
      * @param jobId       The unique identifier of the completed job
-     * @param requestBody The request payload containing result processing parameters
+     * @param edpsResultRequestDto The request payload containing result processing parameters
      * @return Response containing the details of the newly created result asset
      */
     @POST
     @Path("/{assetId}/jobs/{jobId}/result")
-    Response createEdpsJobResultAsset(@PathParam("assetId") String assetId,
-                                      @PathParam("jobId") String jobId,
-                                      String requestBody);
+    Response fetchEdpsJobResult(@PathParam("assetId") String assetId,
+                                @PathParam("jobId") String jobId,
+                                EdpsResultRequestDto edpsResultRequestDto);
 }
