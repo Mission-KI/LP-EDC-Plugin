@@ -54,4 +54,5 @@ launchers/demo-e2e/edc-config.properties
 runtime_settings.properties
 generated_backend.tf
 
-util/http-demo-server/results/
+util/http-demo-server/data/*
+!util/http-demo-server/data.csv

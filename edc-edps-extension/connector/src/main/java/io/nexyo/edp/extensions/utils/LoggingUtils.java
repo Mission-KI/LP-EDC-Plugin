@@ -1,4 +1,4 @@
-package io.nexyo.edp.extensions;
+package io.nexyo.edp.extensions.utils;
 
 import org.eclipse.edc.spi.monitor.Monitor;
 

@@ -65,4 +65,11 @@ public interface EdpsInterface {
     Response fetchEdpsJobResult(@PathParam("assetId") String assetId,
                                 @PathParam("jobId") String jobId,
                                 EdpsResultRequestDto edpsResultRequestDto);
+
+
+    /** Publish edp asset (is an EDPS result) */
+    @POST
+    @Path("/{edpsAssetId}/publish")
+    Response publishEdpsAssetToDaseen(@PathParam("edpsAssetId") String edpsAssetId);
+
 }

@@ -5,7 +5,7 @@ import com.apicatalog.jsonld.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nexyo.edp.extensions.LoggingUtils;
+import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
@@ -31,7 +31,6 @@ public class EdpsService {
     private final Client httpClient = ClientBuilder.newClient();
     private String baseUrl;
     private String daseenBaseUrl;
-    private String createEdpsJobUri;
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
 
@@ -58,8 +57,6 @@ public class EdpsService {
             throw new EdpException("Daseen API URL is not configured");
         }
         this.daseenBaseUrl = confDaseenBaseUrl;
-
-        this.createEdpsJobUri = "v1/dataspace/analysisjob";
     }
 
 
@@ -71,17 +68,20 @@ public class EdpsService {
 
         String jsonRequestBody = jsonb.toJson(requestBody);
 
-        var apiResponse = httpClient.target(this.baseUrl + createEdpsJobUri)
+        var apiResponse = httpClient.target(String.format("%s%s", this.baseUrl, "v1/dataspace/analysisjob"))
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
+
+
+        if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() <= 300)) {
+            this.logger.warning("Failed to create EDPS job for asset id: " + assetId + ". Status was: " + apiResponse.getStatus());
+            throw new EdpException("EDPS job creation failed for asset id: " + assetId);
+        }
 
         String responseBody = apiResponse.readEntity(String.class);
         httpClient.close();
 
-        if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() <= 300)) {
-            this.logger.warning("Failed to create EDPS job: " + responseBody + " status: " + apiResponse.getStatus());
-            throw new EdpException("EDPS job creation failed: " + responseBody);
-        }
+        this.logger.info("EDPS job created successfully for asset id: " + assetId + ". Edps Server responded: " + responseBody);
 
         try {
             return this.mapper.readValue(responseBody, EdpsJobResponseDto.class);
@@ -126,12 +126,9 @@ public class EdpsService {
     }
 
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
-        // 1. get asset by assetUuid
-        // 2. download the referenced file (dataplane should do this)
-        // 3. dataplane post the file to edps api
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .baseUrl("http://localhost:8080/upload")  // todo: change to edps base url  //  String.format("this.baseUrl/%s/%s/data", this.createEdpsJobUri, edpsJobDto.getJobUuid())
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data", this.baseUrl, edpsJobDto.getJobUuid()))
                 .property("header:upload_file", "data.csv")
                 .build();
 
@@ -143,14 +140,12 @@ public class EdpsService {
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
-                //.baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/result", this.baseUrl, jobId)) // todo: use this when the API is ready
-                .baseUrl("http://localhost:8080/data.zip")
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/result", this.baseUrl, jobId))
                 .build();
 
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
                 .baseUrl(edpResultRequestDto.destinationAddress())
-                .property("header:X-File-Name", "edps-result-data.zip")
                 .build();
 
         this.dataplaneService.start(sourceAddress, destinationAddress);
@@ -159,12 +154,10 @@ public class EdpsService {
     public void publishToDaseen(String assetId) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .baseUrl("http://localhost:8081/")
-                //.baseUrl(String.format("%s/create-edp", this.daseenBaseUrl)) // todo: use this when the API is ready
+                .baseUrl(String.format("%s/create-edp", this.daseenBaseUrl))
                 .build();
 
         this.dataplaneService.start(assetId, destinationAddress);
     }
-
 
 }
