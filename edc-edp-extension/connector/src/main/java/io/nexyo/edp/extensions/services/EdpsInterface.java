@@ -74,7 +74,7 @@ public interface EdpsInterface {
      * @return A {@link Response} indicating the success or failure of the publication process.
      */
     @POST
-    @Path("/daseen/{edpsAssetId}/publish")
-    Response publishEdpsAssetToDaseen(@PathParam("edpsAssetId") String edpAssetId);
+    @Path("/daseen/{edpAssetId}/publish")
+    Response publishEdpsAssetToDaseen(@PathParam("edpAssetId") String edpAssetId);
 
 }

@@ -12,7 +12,7 @@
  *
  */
 
-rootProject.name = "edc-edps-extension"
+rootProject.name = "edc-edp-extension"
 
 pluginManagement {
     repositories {
@@ -28,5 +28,5 @@ dependencyResolutionManagement {
     }
 }
 
-include("edc-edps-extension:connector")
+include("edc-edp-extension:connector")
 include(":util:http-request-logger")

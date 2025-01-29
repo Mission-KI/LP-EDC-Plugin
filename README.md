@@ -34,7 +34,7 @@ The Api reference for the:
 Build the connector:
 
 ```bash
-./gradlew edc-edps-extension:connector:build
+./gradlew edc-edp-extension:connector:build
 ```
 
 Note: The gradle-wrapper.jar needs to be in the `.gradle/wrapper/` directory.
@@ -42,7 +42,7 @@ Note: The gradle-wrapper.jar needs to be in the `.gradle/wrapper/` directory.
 Run the connector:
 
 ```bash
-java -Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties -jar edc-edps-extension/connector/build/libs/connector.jar
+java -Dedc.fs.config=edc-edp-extension/connector/src/main/resources/application.properties -jar edc-edp-extension/connector/build/libs/connector.jar
 ```
 
 Alternatively, start the `io/nexyo/edp/extensions/Runner.java` in the IDE.
@@ -69,7 +69,7 @@ python python ./util/edps-mock-server/server.py
 Use the management Api to create an asset:
 
 ```bash
-curl -d @edc-edps-extension/connector/src/main/resources/requests/create-asset.json \
+curl -d @edc-edp-extension/connector/src/main/resources/requests/create-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
   -s | jq 
 ```
@@ -102,13 +102,13 @@ Replace the jobId in the request with the jobId from the previous step.
 ```bash
 curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
   -H 'content-type: application/json' \
-  -d @edc-edps-extension/connector/src/main/resources/requests/fetch-edps-result.json 
+  -d @edc-edp-extension/connector/src/main/resources/requests/fetch-edps-result.json 
 ````
 
 ### 6. Create Result Asset
 
 ```bash
-curl -d @edc-edps-extension/connector/src/main/resources/requests/create-result-asset.json \
+curl -d @edc-edp-extension/connector/src/main/resources/requests/create-result-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
   -s | jq 
 ```
