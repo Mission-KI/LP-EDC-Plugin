@@ -2,12 +2,12 @@ package io.nexyo.edp.extensions.controllers;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
+import io.nexyo.edp.extensions.utils.LoggingUtils;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -47,8 +47,6 @@ public class EdpsController implements EdpsInterface {
     public Response getEdpsJob(String assetId) {
         logger.info("Getting EDP job for asset " + assetId);
 
-        // todo: get jobs from edps api
-
         return Response.status(200)
                 .entity("all good")
                 .build();
@@ -68,10 +66,6 @@ public class EdpsController implements EdpsInterface {
 
         this.edpsService.sendAnalysisData(edpsJobDto);
 
-        // todo: add error handling
-        // get response from dataplane (via messaging?)
-        // return proper response to client
-
         return Response.status(Response.Status.OK)
                 .entity(edpsJobDto)
                 .build();
@@ -83,10 +77,6 @@ public class EdpsController implements EdpsInterface {
         logger.info("Fetching EDP result ZIP...");
         this.edpsService.fetchEdpsJobResult(assetId, jobId, edpResultRequestDto);
 
-        // todo: add error handling
-        // get response from dataplane (via messaging?)
-        // return proper response to client
-
         return Response.status(Response.Status.OK)
                 .entity("all good")
                 .build();
@@ -95,10 +85,6 @@ public class EdpsController implements EdpsInterface {
     @Override
     public Response publishEdpsAssetToDaseen(String edpsAssetId) {
         this.edpsService.publishToDaseen(edpsAssetId);
-
-        // todo: add error handling
-        // get response from dataplane (via messaging?)
-        // return proper response to client
 
         return Response.status(Response.Status.OK)
                 .entity("all good")

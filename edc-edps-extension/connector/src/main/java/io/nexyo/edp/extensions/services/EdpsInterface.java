@@ -67,7 +67,12 @@ public interface EdpsInterface {
                                 EdpsResultRequestDto edpsResultRequestDto);
 
 
-    /** Publish edp asset (is an EDPS result) */
+    /**
+     * Publishes an EDPS asset to the Daseen API.
+     *
+     * @param edpsAssetId The unique identifier of the EDPS result asset to be published.
+     * @return A {@link Response} indicating the success or failure of the publication process.
+     */
     @POST
     @Path("/{edpsAssetId}/publish")
     Response publishEdpsAssetToDaseen(@PathParam("edpsAssetId") String edpsAssetId);

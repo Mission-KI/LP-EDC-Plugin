@@ -1,7 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
-import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.controllers.EdpsController;
+import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
@@ -16,7 +16,7 @@ import org.eclipse.edc.web.spi.WebService;
  */
 public class EdpServiceExtension implements ServiceExtension {
 
-    public static final String NAME = "EdpServiceExtension";
+    public static final String EXTENSION_NAME = "EdpServiceExtension";
 
     @Inject
     private WebService webService;
@@ -34,7 +34,7 @@ public class EdpServiceExtension implements ServiceExtension {
 
     @Override
     public String name() {
-        return NAME;
+        return EXTENSION_NAME;
     }
 
     @Override

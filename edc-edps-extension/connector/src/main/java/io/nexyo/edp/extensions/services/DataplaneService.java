@@ -1,7 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
-import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
@@ -99,8 +99,6 @@ public class DataplaneService {
                 .participantId("<not-needed>")
                 .agreementId("<not-needed>")
                 .transferType(transferType)
-                //.callbackAddress(callbackUrl != null ? callbackUrl.get() : null)
-                //.properties(propertiesResult.getContent())
                 .build();
     }
 }
