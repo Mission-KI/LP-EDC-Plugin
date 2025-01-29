@@ -95,8 +95,8 @@ public class EdpsController implements EdpsInterface {
     }
 
     @Override
-    public Response publishEdpsAssetToDaseen(String edpsAssetId) {
-        this.edpsService.publishToDaseen(edpsAssetId);
+    public Response publishEdpsAssetToDaseen(String edpAssetId) {
+        this.edpsService.publishToDaseen(edpAssetId);
 
         final var response = new GenericResponseDto(
                 "EDPS asset published successfully to Daseen", Status.OK);

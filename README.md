@@ -24,7 +24,7 @@ It is sufficient to change the `edc.edps.url` and `edc.daseen.url` properties to
 
 The Api reference for the:
 - Management Api can be found [here](https://github.com/eclipse-edc/Connector/blob/gh-pages/openapi/management-api/3.0.6/management-api.yaml).  
-- This extension can be found in the resources folder of the edc-edps-extension.
+- Extension Api can be found [here](edc-edps-extension/connector/src/main/resources/edc-edps-openapi.yml).
 
 
 ## EDP Workflow
@@ -84,7 +84,7 @@ curl  http://localhost:19193/management/v3/assets/assetId1 | jq
 ### 4. Create EDPS Job
 
 ```bash 
-curl -X POST http://localhost:19191/api/edps/assetId1/jobs  | jq
+curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs  | jq
 ```
 
 Note the `jobId` in the response as it is needed for the next step.
@@ -92,7 +92,7 @@ Note the `jobId` in the response as it is needed for the next step.
 [Optional] Get EDPS job status:
 
 ```bash
-curl  http://localhost:19191/api/edps/assetId1/jobs/{jobId}/status  | jq
+curl  http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/status  | jq
 ```
 
 ### 5. Get EDPS Result
@@ -100,7 +100,7 @@ curl  http://localhost:19191/api/edps/assetId1/jobs/{jobId}/status  | jq
 Replace the jobId in the request with the jobId from the previous step.
 
 ```bash
-curl -X POST http://localhost:19191/api/edps/assetId1/jobs/{jobId}/result \
+curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
   -H 'content-type: application/json' \
   -d @edc-edps-extension/connector/src/main/resources/requests/fetch-edps-result.json 
 ````
@@ -117,7 +117,7 @@ curl -d @edc-edps-extension/connector/src/main/resources/requests/create-result-
 ### 7. Publish Result to Daseen
 
 ```bash
-curl -X POST http://localhost:19191/api/edps/resultAssetId1/publish
+curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
 ```
 
 
@@ -132,5 +132,6 @@ curl -X POST http://localhost:19191/api/edps/resultAssetId1/publish
 
 - Proper error handling for Dataplane operations
 - Persistence: store edps job information
+- Add job status route to mock server
 - Javadoc
 
