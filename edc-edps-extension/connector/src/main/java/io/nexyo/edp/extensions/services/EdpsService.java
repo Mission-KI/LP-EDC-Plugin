@@ -68,7 +68,7 @@ public class EdpsService {
 
         String jsonRequestBody = jsonb.toJson(requestBody);
 
-        var apiResponse = httpClient.target(String.format("%s%s", this.baseUrl, "v1/dataspace/analysisjob"))
+        var apiResponse = httpClient.target(String.format("%s%s", this.baseUrl, "/v1/dataspace/analysisjob"))
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 
@@ -123,6 +123,28 @@ public class EdpsService {
         requestBody.put("freely_available", true);
 
         return requestBody;
+    }
+
+    public EdpsJobResponseDto getEdpsJobStatus(String jobId) {
+        this.logger.info(String.format("Fetching EDPS Job status for job %s...", jobId));
+
+        var apiResponse = this.httpClient.target(String.format("%s/v1/dataspace/analysisjob/%s/status", this.baseUrl, jobId))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+
+        if (apiResponse.getStatus() < 200 || apiResponse.getStatus() >= 300) {
+            String errorMessage = apiResponse.readEntity(String.class);
+            this.logger.warning("Failed to fetch EDPS job status: " + errorMessage);
+            throw new EdpException("Failed to fetch EDPS job status: " + errorMessage);
+        }
+
+        String responseBody = apiResponse.readEntity(String.class);
+
+        try {
+            return this.mapper.readValue(responseBody, EdpsJobResponseDto.class);
+        } catch (JsonProcessingException e) {
+            throw new EdpException("Unable to map response to DTO ", e);
+        }
     }
 
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {

@@ -37,25 +37,34 @@ Build the connector:
 ./gradlew edc-edps-extension:connector:build
 ```
 
+Note: The gradle-wrapper.jar needs to be in the `.gradle/wrapper/` directory.
+
 Run the connector:
 
 ```bash
-java -Dedc.keystore=app-edc-edps-demo/resources/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.fs.config=-Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties -jar app-edc-edps-demo/connector/build/libs/connector.jar
+java -Dedc.fs.config=edc-edps-extension/connector/src/main/resources/application.properties -jar edc-edps-extension/connector/build/libs/connector.jar
 ```
 
 Alternatively, start the `io/nexyo/edp/extensions/Runner.java` in the IDE.
 
 
-### 2. Start HTTP server to providing demo data.csv
+### 2. Start Services
 
-Start with the following command:
+Start the http server with the following command:
 
 ```bash
 python ./util/http-file-server/server.py
 ```
 
+The file server will be used to provide files referenced by the EDC assets.  
 
-### 1. Create Asset
+Start the mock server for the EDPS and Daseen Api:
+
+```bash
+python python ./util/edps-mock-server/server.py
+```
+
+### 3. Create Asset
 
 Use the management Api to create an asset:
 
@@ -68,19 +77,27 @@ curl -d @edc-edps-extension/connector/src/main/resources/requests/create-asset.j
 [Optional] Check if asset is created:
 
 ```bash 
-curl  http://localhost:19193/management/v3/assets/assetId1
+curl  http://localhost:19193/management/v3/assets/assetId1 | jq
 ```
 
 
-### 2. Create EDPS Job
+### 4. Create EDPS Job
 
 ```bash 
-curl -X POST http://localhost:19191/api/edps/assetId1/jobs
+curl -X POST http://localhost:19191/api/edps/assetId1/jobs  | jq
 ```
 
+Note the `jobId` in the response as it is needed for the next step.
 
-### 3. Get EDPS Result
+[Optional] Get EDPS job status:
 
+```bash
+curl  http://localhost:19191/api/edps/assetId1/jobs/{jobId}/status  | jq
+```
+
+### 5. Get EDPS Result
+
+Replace the jobId in the request with the jobId from the previous step.
 
 ```bash
 curl -X POST http://localhost:19191/api/edps/assetId1/jobs/{jobId}/result \
@@ -88,8 +105,7 @@ curl -X POST http://localhost:19191/api/edps/assetId1/jobs/{jobId}/result \
   -d @edc-edps-extension/connector/src/main/resources/requests/fetch-edps-result.json 
 ````
 
-
-### 4. Create Result Asset
+### 6. Create Result Asset
 
 ```bash
 curl -d @edc-edps-extension/connector/src/main/resources/requests/create-result-asset.json \
@@ -98,11 +114,10 @@ curl -d @edc-edps-extension/connector/src/main/resources/requests/create-result-
 ```
 
 
-### 5. Publish Result to Daseen
+### 7. Publish Result to Daseen
 
 ```bash
-curl -H 'content-type: application/json' http://localhost:19193/api/daseen/resultAssetId1/publish \
-  -s | jq 
+curl -X POST http://localhost:19191/api/edps/resultAssetId1/publish
 ```
 
 
@@ -113,8 +128,7 @@ curl -H 'content-type: application/json' http://localhost:19193/api/daseen/resul
 - No error handling for Dataplane operations
 
 
-
-## ToDos:
+## ToDos
 
 - Proper error handling for Dataplane operations
 - Persistence: store edps job information

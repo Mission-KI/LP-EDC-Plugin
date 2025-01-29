@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
+import io.nexyo.edp.extensions.dtos.internal.GenericResponseDto;
+import io.nexyo.edp.extensions.dtos.internal.Status;
 import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
@@ -45,16 +47,23 @@ public class EdpsController implements EdpsInterface {
 
     @Override
     public Response getEdpsJob(String assetId) {
-        logger.info("Getting EDP job for asset " + assetId);
+        logger.info("Getting latest EDP job for asset " + assetId);
+        var edpsJobDto = new EdpsJobDto();
 
         return Response.status(200)
-                .entity("all good")
+                .entity(edpsJobDto)
                 .build();
     }
 
     @Override
     public Response getEdpsJobStatus(String assetId, String jobId) {
-        return null;
+        this.logger.info(String.format("Getting EDP job status for asset %s and job %s", assetId, jobId));
+        var edpsJobResponseDto = this.edpsService.getEdpsJobStatus(jobId);
+        var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
+
+        return Response.status(Response.Status.OK)
+                .entity(edpsJobDto)
+                .build();
     }
 
     @Override
@@ -77,8 +86,11 @@ public class EdpsController implements EdpsInterface {
         logger.info("Fetching EDP result ZIP...");
         this.edpsService.fetchEdpsJobResult(assetId, jobId, edpResultRequestDto);
 
+        final var response = new GenericResponseDto(
+                "EDPS asset fetched and stored successfully to destination address", Status.OK);
+
         return Response.status(Response.Status.OK)
-                .entity("all good")
+                .entity(response)
                 .build();
     }
 
@@ -86,8 +98,11 @@ public class EdpsController implements EdpsInterface {
     public Response publishEdpsAssetToDaseen(String edpsAssetId) {
         this.edpsService.publishToDaseen(edpsAssetId);
 
+        final var response = new GenericResponseDto(
+                "EDPS asset published successfully to Daseen", Status.OK);
+
         return Response.status(Response.Status.OK)
-                .entity("all good")
+                .entity(response)
                 .build();
     }
 }
