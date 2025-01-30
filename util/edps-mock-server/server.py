@@ -31,12 +31,29 @@ class CustomHandler(SimpleHTTPRequestHandler):
         self.log_request_details()
         parsed_path = urlparse(self.path).path
 
-        if parsed_path.startswith("/v1/dataspace/analysisjob/"):
+        if parsed_path.startswith("/v1/dataspace/analysisjob/") and "/result" in parsed_path:
             self.serve_analysisjob_result(parsed_path)
+        elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/status" in parsed_path:
+            self.serve_analysisjob_status()
         else:
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"Not found")
+
+    def serve_analysisjob_status(self):
+        """Serve job status."""
+        response = {
+            "job_id": "xxx",
+            "state": "WAITING_FOR_DATA",
+            "state_detail": "Job is waiting for data to be uploaded."
+        }
+        response_bytes = json.dumps(response, indent=2).encode('utf-8')
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(response_bytes)))
+        self.end_headers()
+        self.wfile.write(response_bytes)
 
     def serve_analysisjob_result(self, parsed_path):
         """Serve the processed .zip file."""
