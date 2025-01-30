@@ -1,4 +1,4 @@
-# EDC - EDPS Extension
+# EDC - EDP Extension
 
 
 To extend the EDC with the EDPS functionality, this extension provides the following features:
