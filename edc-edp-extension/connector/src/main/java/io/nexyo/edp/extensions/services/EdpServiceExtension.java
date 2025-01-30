@@ -37,10 +37,15 @@ public class EdpServiceExtension implements ServiceExtension {
     @Inject
     AssetIndex assetIndexer;
 
+    private EdpsService edpsService;
+
+
     @Override
     public String name() {
         return EXTENSION_NAME;
     }
+
+
 
     @Override
     public void initialize(ServiceExtensionContext context) {
@@ -50,13 +55,16 @@ public class EdpServiceExtension implements ServiceExtension {
         logger.info("EdpServiceExtension initialized");
 
         var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
-        var edpsController = new EdpsController(dataplaneService, assetService);
+        this.edpsService = new EdpsService(dataplaneService);
+        var edpsController = new EdpsController(edpsService, assetService);
+
         webService.registerResource(edpsController);
     }
 
     @Override
     public void shutdown() {
         logger.info("Shutting down EDP extension");
+        this.edpsService.close();
     }
 
 }

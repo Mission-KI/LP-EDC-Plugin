@@ -7,7 +7,6 @@ import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.dtos.internal.GenericResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.Status;
 import io.nexyo.edp.extensions.services.AssetHelperService;
-import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
@@ -15,6 +14,10 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.edc.connector.controlplane.services.spi.asset.AssetService;
 import org.eclipse.edc.spi.monitor.Monitor;
 
+
+/**
+ * Controller class for handling EDP-related operations.
+ */
 public class EdpsController implements EdpsInterface {
 
     private final Monitor logger;
@@ -23,10 +26,17 @@ public class EdpsController implements EdpsInterface {
     private static final String CALLBACK_INFO = "Check specified dataplane-callback address for updates.";
     private final AssetHelperService assetHelperService;
 
-    public EdpsController(DataplaneService dataplaneService, AssetService assetService) {
+    /**
+     * Constructs an instance of EdpsController.
+     *
+     *
+     * @param edpsService the service responsible for handling EDPS operations
+     * @param assetService the service responsible for handling asset operations
+     */
+    public EdpsController(EdpsService edpsService, AssetService assetService) {
         this.logger = LoggingUtils.getLogger();
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.edpsService = new EdpsService(dataplaneService);
+        this.edpsService = edpsService;
         this.assetHelperService = new AssetHelperService(assetService);
     }
 
@@ -70,7 +80,6 @@ public class EdpsController implements EdpsInterface {
         edpsJobDto.setDetails("Posting analysis data to EDPS initiated. " + CALLBACK_INFO);
 
         this.assetHelperService.persistJobInfo(assetId, edpsJobDto);
-
         this.edpsService.sendAnalysisData(edpsJobDto);
 
         return Response.status(Response.Status.OK)

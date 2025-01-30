@@ -94,7 +94,6 @@ public class EdpsService {
         }
 
         String responseBody = apiResponse.readEntity(String.class);
-        httpClient.close();
 
         this.logger.info("EDPS job created successfully for asset id: " + assetId + ". Edps Server responded: " + responseBody);
 
@@ -184,6 +183,14 @@ public class EdpsService {
                 .build();
 
         this.dataplaneService.start(assetId, destinationAddress);
+    }
+
+    /**
+     * Closes the HTTP client.
+     */
+    public void close() {
+        this.logger.info("Closing HTTP client...");
+        this.httpClient.close();
     }
 
 }
