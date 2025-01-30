@@ -11,8 +11,10 @@ import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.edc.connector.controlplane.services.spi.asset.AssetService;
 import org.eclipse.edc.spi.monitor.Monitor;
 
+import java.util.Optional;
 
 public class EdpsController implements EdpsInterface {
 
@@ -20,22 +22,45 @@ public class EdpsController implements EdpsInterface {
     private final EdpsService edpsService;
     private final ObjectMapper mapper = new ObjectMapper();
     private static final String CALLBACK_INFO = "Check specified dataplane-callback address for updates.";
+    private static final String EDPS_JOB_ID_KEY = "edps_job_id";
+    private final AssetService assetService;
 
-    public EdpsController(DataplaneService dataplaneService) {
+    public EdpsController(DataplaneService dataplaneService, AssetService assetService) {
         this.logger = LoggingUtils.getLogger();
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.edpsService = new EdpsService(dataplaneService);
+        this.assetService = assetService;
     }
 
 
     @Override
     public Response getEdpsJob(String assetId) {
         logger.info("Getting latest EDP job for asset " + assetId);
-        var edpsJobDto = new EdpsJobDto();
 
-        return Response.status(200)
+        var jobOptional = getEdpsJobId(assetId);
+
+        if (jobOptional.isEmpty()) {
+            var response = new GenericResponseDto("No Job found for asset: " + assetId, Status.NOT_FOUND);
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        var jobId = jobOptional.get();
+        var edpsJobResponseDto = this.edpsService.getEdpsJobStatus(jobId);
+        var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
+
+        return Response.status(Response.Status.OK)
                 .entity(edpsJobDto)
                 .build();
+    }
+
+    private Optional<String> getEdpsJobId(String assetId) {
+        var asset = this.assetService.findById(assetId);
+        var jobId = asset.getProperty(EDPS_JOB_ID_KEY);
+
+        if (jobId == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(jobId.toString());
     }
 
     @Override
@@ -57,12 +82,23 @@ public class EdpsController implements EdpsInterface {
         edpsJobDto.setAssetId(assetId);
         edpsJobDto.setDetails("Posting analysis data to EDPS initiated. "+ CALLBACK_INFO);
 
-        // the returned state is actually before the following call
+        this.persistJobInfo(assetId, edpsJobDto);
+
         this.edpsService.sendAnalysisData(edpsJobDto);
 
         return Response.status(Response.Status.OK)
                 .entity(edpsJobDto)
                 .build();
+    }
+
+    private void persistJobInfo(String assetId, EdpsJobDto edpsJobDto) {
+        var asset = this.assetService.findById(assetId);
+        var updatedAsset = asset.toBuilder().property(EDPS_JOB_ID_KEY, edpsJobDto.getJobId())
+                        .build();
+        var result = assetService.update(updatedAsset);
+        if (result.failed()) {
+            this.logger.warning("Could not store job information on asset: " +assetId);
+        }
     }
 
 

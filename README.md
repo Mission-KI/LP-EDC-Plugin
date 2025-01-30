@@ -61,7 +61,7 @@ The file server will be used to provide files referenced by the EDC assets.
 Start the mock server for the EDPS and Daseen Api:
 
 ```bash
-python python ./util/edps-mock-server/server.py
+python ./util/edps-mock-server/server.py
 ```
 
 ### 3. Create Asset
@@ -88,6 +88,12 @@ curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs  | jq
 ```
 
 Note the `jobId` in the response as it is needed for the next step.
+
+[Optional] Get EDPS job by assetId:
+```bash
+curl http://localhost:19191/api/edp/edps/assetId1/jobs
+```
+
 
 [Optional] Get EDPS job status:
 

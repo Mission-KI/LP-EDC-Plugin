@@ -69,7 +69,7 @@ public class EdpsJobDto {
      *
      * @return the jobUuid
      */
-    public String getJobUuid() {
+    public String getJobId() {
         return jobUuid;
     }
 

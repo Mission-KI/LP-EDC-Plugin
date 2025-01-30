@@ -4,6 +4,7 @@ import io.nexyo.edp.extensions.controllers.EdpsController;
 import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
+import org.eclipse.edc.connector.controlplane.services.spi.asset.AssetService;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
@@ -31,6 +32,9 @@ public class EdpServiceExtension implements ServiceExtension {
     private DataPlaneSelectorService dataPlaneSelectorService;
 
     @Inject
+    private AssetService assetService;
+
+    @Inject
     AssetIndex assetIndexer;
 
     @Override
@@ -46,7 +50,7 @@ public class EdpServiceExtension implements ServiceExtension {
         logger.info("EdpServiceExtension initialized");
 
         var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
-        var edpsController = new EdpsController(dataplaneService);
+        var edpsController = new EdpsController(dataplaneService, assetService);
         webService.registerResource(edpsController);
     }
 

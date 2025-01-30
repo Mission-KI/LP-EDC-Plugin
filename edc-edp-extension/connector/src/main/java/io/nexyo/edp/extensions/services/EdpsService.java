@@ -142,7 +142,7 @@ public class EdpsService {
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data", this.edpsBaseUrl, edpsJobDto.getJobUuid()))
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data", this.edpsBaseUrl, edpsJobDto.getJobId()))
                 .property("header:upload_file", "data.csv")
                 .build();
 
