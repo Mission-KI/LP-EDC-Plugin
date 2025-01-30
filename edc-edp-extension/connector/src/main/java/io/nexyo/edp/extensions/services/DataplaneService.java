@@ -135,9 +135,9 @@ public class DataplaneService {
                 .assetId(assetId)
                 .sourceDataAddress(sourceDataAddress)
                 .destinationDataAddress(destinationDataAddress)
-                .processId("<not-needed>")
-                .participantId("<not-needed>")
-                .agreementId("<not-needed>")
+                .processId("")
+                .participantId("")
+                .agreementId("")
                 .callbackAddress(URI.create(this.callbackAddress))
                 .transferType(transferType)
                 .build();
