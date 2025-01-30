@@ -136,8 +136,6 @@ curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
 
 ## ToDos
 
-- Proper error handling for Dataplane operations
-- Persistence: store edps job information
-- Add job status route to mock server
-- Javadoc
-
+- Add tests
+- Support for other transfer types
+- Use job infos from request rather than currently used test data

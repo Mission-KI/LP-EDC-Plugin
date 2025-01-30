@@ -85,8 +85,8 @@ public class EdpsController implements EdpsInterface {
         this.edpsService.fetchEdpsJobResult(assetId, jobId, edpResultRequestDto);
 
         final var response = new GenericResponseDto(
-                "Storing EDPS asset to destination address initiated."
-                        + CALLBACK_INFO, Status.OK);
+                "Storing EDPS asset to destination address initiated." +
+                        CALLBACK_INFO, Status.OK);
 
         return Response.status(Response.Status.OK)
                 .entity(response)
@@ -98,8 +98,8 @@ public class EdpsController implements EdpsInterface {
         this.edpsService.publishToDaseen(edpAssetId);
 
         final var response = new GenericResponseDto(
-                "Publishing job for EDP result asset to Daseen dispatched to dataplane."
-                        + CALLBACK_INFO, Status.OK);
+                "Publishing job for EDP result asset to Daseen dispatched to dataplane." +
+                        CALLBACK_INFO, Status.OK);
 
         return Response.status(Response.Status.OK)
                 .entity(response)

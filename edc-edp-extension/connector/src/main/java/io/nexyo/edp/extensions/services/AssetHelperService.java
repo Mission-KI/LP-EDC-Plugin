@@ -18,7 +18,8 @@ public class AssetHelperService {
 
     /**
      * Constructor for the AssetHelperService.
-     * 
+     *
+     *
      * @param assetService the asset service
      */ 
     public AssetHelperService(AssetService assetService) {
@@ -29,7 +30,8 @@ public class AssetHelperService {
 
     /**
      * Persists the job information on the asset.
-     * 
+     *
+     *
      * @param assetId the asset id
      * @param edpsJobDto the job information
      */
@@ -46,7 +48,8 @@ public class AssetHelperService {
 
     /**
      * Retrieves the job id from the asset.
-     * 
+     *
+     *
      * @param assetId the asset id
      * @return the job id
      */ 

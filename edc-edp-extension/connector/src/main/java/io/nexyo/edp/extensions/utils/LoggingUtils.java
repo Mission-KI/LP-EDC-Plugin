@@ -18,7 +18,8 @@ public class LoggingUtils {
 
     /**
      * Sets the logger.
-     * 
+     *
+     *
      * @param monitor the monitor
      */
     public static synchronized void setLogger(Monitor monitor) {
@@ -27,7 +28,8 @@ public class LoggingUtils {
 
     /**
      * Gets the logger.
-     * 
+     *
+     *
      * @return the logger
      */
     public static synchronized Monitor getLogger() {

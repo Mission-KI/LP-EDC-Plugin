@@ -37,7 +37,8 @@ public class ConfigurationUtils {
 
     /**
      * Gets the configuration.
-     * 
+     *
+     *
      * @return the configuration
      */
     public static synchronized Config getConfig() {
@@ -49,7 +50,8 @@ public class ConfigurationUtils {
 
     /**
      * Reads a string property from the configuration.
-     * 
+     *
+     *
      * @param key the key
      * @param propertyName the property name
      * @return the property value
