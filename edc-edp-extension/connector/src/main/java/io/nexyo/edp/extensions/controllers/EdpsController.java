@@ -32,16 +32,7 @@ public class EdpsController implements EdpsInterface {
     public EdpsController(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        var configurationLoader = new ConfigurationLoader(
-                new ServiceLocatorImpl(),
-                EnvironmentVariables.ofDefault(),
-                SystemProperties.ofDefault()
-        );
-
-        var config = configurationLoader.loadConfiguration(this.logger);
-
-        this.edpsService = new EdpsService(config, dataplaneService);
+        this.edpsService = new EdpsService(dataplaneService);
     }
 
 

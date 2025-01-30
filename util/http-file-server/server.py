@@ -64,6 +64,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
         if parsed_path == "/":
             self.handle_file_upload()
+        elif parsed_path == "/dataplane/result":
+            logging.info("Received callback call from dataplane")
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length).decode("utf-8") if content_length else ""
+            logging.info(f"Request Body: {body}")
+            self.send_response(201)
+            self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()

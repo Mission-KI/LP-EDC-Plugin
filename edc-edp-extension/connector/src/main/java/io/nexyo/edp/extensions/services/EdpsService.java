@@ -9,6 +9,7 @@ import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -34,9 +35,9 @@ public class EdpsService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
 
-    public EdpsService(Config config, DataplaneService dataplaneService) {
+    public EdpsService(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
-        initRoutes(config);
+        initRoutes(ConfigurationUtils.getConfig());
 
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.dataplaneService = dataplaneService;
@@ -46,7 +47,7 @@ public class EdpsService {
         final String edpsApiUrlKey = "epd.edps.api";
         final String daseenApiUrlKey = "edp.daseen.api";
 
-        String confBaseUrl = config.getConfig(edpsApiUrlKey).getString("url");
+        var confBaseUrl = config.getConfig(edpsApiUrlKey).getString("url");
         if (StringUtils.isBlank(confBaseUrl)) {
             throw new EdpException("EDPS API URL is not configured");
         }

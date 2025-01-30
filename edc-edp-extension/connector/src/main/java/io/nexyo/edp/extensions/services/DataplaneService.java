@@ -1,6 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
@@ -13,6 +14,7 @@ import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.edc.spi.types.domain.transfer.FlowType;
 import org.eclipse.edc.spi.types.domain.transfer.TransferType;
 
+import java.net.URI;
 import java.util.UUID;
 
 
@@ -26,6 +28,8 @@ public class DataplaneService {
 
     private Monitor logger;
 
+    private String callbackAddress;
+
     protected DataplaneService() {
     }
 
@@ -34,6 +38,7 @@ public class DataplaneService {
         this.clientFactory = clientFactory;
         this.assetIndexer = assetIndexer;
         this.logger = LoggingUtils.getLogger();
+        this.callbackAddress = ConfigurationUtils.readStringProperty("dataplane.callback", "url");
     }
 
 
@@ -98,6 +103,7 @@ public class DataplaneService {
                 .processId("<not-needed>")
                 .participantId("<not-needed>")
                 .agreementId("<not-needed>")
+                .callbackAddress(URI.create(this.callbackAddress))
                 .transferType(transferType)
                 .build();
     }

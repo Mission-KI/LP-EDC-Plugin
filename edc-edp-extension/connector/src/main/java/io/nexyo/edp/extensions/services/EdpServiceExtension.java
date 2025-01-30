@@ -1,6 +1,7 @@
 package io.nexyo.edp.extensions.services;
 
 import io.nexyo.edp.extensions.controllers.EdpsController;
+import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
@@ -41,6 +42,7 @@ public class EdpServiceExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         logger = context.getMonitor();
         LoggingUtils.setLogger(logger);
+        ConfigurationUtils.loadConfig();
         logger.info("EdpServiceExtension initialized");
 
         var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
