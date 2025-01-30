@@ -91,7 +91,7 @@ Note the `jobId` in the response as it is needed for the next step.
 
 [Optional] Get EDPS job by assetId:
 ```bash
-curl http://localhost:19191/api/edp/edps/assetId1/jobs
+curl http://localhost:19191/api/edp/edps/assetId1/jobs | jq 
 ```
 
 
