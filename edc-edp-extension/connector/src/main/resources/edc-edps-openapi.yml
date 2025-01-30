@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: EDPS API
-  description: RESTful API for managing EDPS jobs and their results. Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
+  title: EDC - EDP Extension API
+  description: RESTful API for managing Extended Dataset Profile (EDP) jobs and their results.
   version: 0.1.0
 
 servers:
