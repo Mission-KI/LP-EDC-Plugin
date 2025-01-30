@@ -10,20 +10,16 @@ import io.nexyo.edp.extensions.services.DataplaneService;
 import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.edc.spi.monitor.Monitor;
 
 
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class EdpsController implements EdpsInterface {
 
     private final Monitor logger;
     private final EdpsService edpsService;
     private final ObjectMapper mapper = new ObjectMapper();
+    private static final String CALLBACK_INFO = "Check specified dataplane-callback address for updates.";
 
     public EdpsController(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
@@ -59,7 +55,9 @@ public class EdpsController implements EdpsInterface {
         var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId);
         var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
         edpsJobDto.setAssetId(assetId);
+        edpsJobDto.setDetails("Posting analysis data to EDPS initiated. "+ CALLBACK_INFO);
 
+        // the returned state is actually before the following call
         this.edpsService.sendAnalysisData(edpsJobDto);
 
         return Response.status(Response.Status.OK)
@@ -70,11 +68,12 @@ public class EdpsController implements EdpsInterface {
 
     @Override
     public Response fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
-        logger.info("Fetching EDP result ZIP...");
+        logger.info("Storing EDP result ZIP to destination address..." + edpResultRequestDto.destinationAddress());
         this.edpsService.fetchEdpsJobResult(assetId, jobId, edpResultRequestDto);
 
         final var response = new GenericResponseDto(
-                "EDPS asset fetched and stored successfully to destination address", Status.OK);
+                "Storing EDPS asset to destination address initiated."
+                        + CALLBACK_INFO, Status.OK);
 
         return Response.status(Response.Status.OK)
                 .entity(response)
@@ -86,7 +85,8 @@ public class EdpsController implements EdpsInterface {
         this.edpsService.publishToDaseen(edpAssetId);
 
         final var response = new GenericResponseDto(
-                "EDPS asset published successfully to Daseen", Status.OK);
+                "Publishing job for EDP result asset to Daseen dispatched to dataplane."
+                        + CALLBACK_INFO, Status.OK);
 
         return Response.status(Response.Status.OK)
                 .entity(response)

@@ -22,6 +22,10 @@ import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.domain.transfer.FlowType;
 
+
+/**
+ * Service class responsible for handling EDPS-related operations.
+ */
 public class EdpsService {
 
     private final Monitor logger;
@@ -31,6 +35,11 @@ public class EdpsService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
 
+    /**
+     * Constructs an instance of EdpsService.
+     *
+     * @param dataplaneService the service responsible for handling data transfers.
+     */
     public EdpsService(DataplaneService dataplaneService) {
         this.logger = LoggingUtils.getLogger();
         initRoutes();
@@ -39,6 +48,10 @@ public class EdpsService {
         this.dataplaneService = dataplaneService;
     }
 
+    /**
+     * Initializes API routes by reading configuration properties.
+     * Throws an exception if the required URLs are not configured.
+     */
     private void initRoutes() {
         final String edpsApiUrlKey = "epd.edps.api";
         final String daseenApiUrlKey = "edp.daseen.api";
@@ -56,7 +69,13 @@ public class EdpsService {
         this.daseenBaseUrl = confDaseenBaseUrl;
     }
 
-
+    /**
+     * Creates a new EDPS job for the specified asset ID.
+     *
+     * @param assetId the asset ID for which the job is created.
+     * @return the response DTO containing job details.
+     * @throws EdpException if the job creation fails.
+     */
     public EdpsJobResponseDto createEdpsJob(String assetId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
         Jsonb jsonb = JsonbBuilder.create();
@@ -86,7 +105,13 @@ public class EdpsService {
         }
     }
 
-
+    /**
+     * Retrieves the status of an existing EDPS job.
+     *
+     * @param jobId the job ID.
+     * @return the response DTO containing job status details.
+     * @throws EdpException if the request fails.
+     */
     public EdpsJobResponseDto getEdpsJobStatus(String jobId) {
         this.logger.info(String.format("Fetching EDPS Job status for job %s...", jobId));
 
@@ -109,6 +134,11 @@ public class EdpsService {
         }
     }
 
+    /**
+     * Sends analysis data for a given EDPS job.
+     *
+     * @param edpsJobDto the job DTO containing job details.
+     */
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
@@ -119,6 +149,13 @@ public class EdpsService {
         this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress);
     }
 
+    /**
+     * Fetches the result of an EDPS job.
+     *
+     * @param assetId             the asset ID.
+     * @param jobId               the job ID.
+     * @param edpResultRequestDto the request DTO containing result destination details.
+     */
     public void fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
         this.logger.info(String.format("Fetching EDPS Job Result ZIP for asset %s for job %s...", assetId, jobId));
 
@@ -135,6 +172,11 @@ public class EdpsService {
         this.dataplaneService.start(sourceAddress, destinationAddress);
     }
 
+    /**
+     * Publishes the EDPS job result to Daseen.
+     *
+     * @param assetId the asset ID to be published.
+     */
     public void publishToDaseen(String assetId) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())

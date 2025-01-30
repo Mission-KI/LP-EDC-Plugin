@@ -7,8 +7,7 @@ import java.util.Map;
 public class MockUtils {
 
 
-    MockUtils() {
-        throw new IllegalStateException("Utility class");
+    private MockUtils() {
     }
 
 

@@ -7,16 +7,24 @@ import org.eclipse.edc.boot.system.ServiceLocatorImpl;
 import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.system.configuration.Config;
 
+/**
+ * Utility class for loading the configuration.
+ */
 public class ConfigurationUtils {
 
     private static Config config;
 
-    ConfigurationUtils() {
-        throw new IllegalStateException("Utility class");
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private ConfigurationUtils() {
+
     }
 
-
-    public static void loadConfig() {
+    /**
+     * Loads the configuration.
+     */
+    public static synchronized void loadConfig() {
         var configurationLoader = new ConfigurationLoader(
                 new ServiceLocatorImpl(),
                 EnvironmentVariables.ofDefault(),
@@ -27,13 +35,25 @@ public class ConfigurationUtils {
         config = configurationLoader.loadConfiguration(logger);
     }
 
-    public static Config getConfig() {
+    /**
+     * Gets the configuration.
+     * 
+     * @return the configuration
+     */
+    public static synchronized Config getConfig() {
         if (config == null) {
             loadConfig();
         }
         return config;
     }
 
+    /**
+     * Reads a string property from the configuration.
+     * 
+     * @param key the key
+     * @param propertyName the property name
+     * @return the property value
+     */
     public static String readStringProperty(String key, String propertyName) {
         if (config == null) {
             loadConfig();
