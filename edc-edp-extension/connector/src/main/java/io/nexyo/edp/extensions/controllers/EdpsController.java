@@ -14,10 +14,6 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.edc.boot.config.ConfigurationLoader;
-import org.eclipse.edc.boot.config.EnvironmentVariables;
-import org.eclipse.edc.boot.config.SystemProperties;
-import org.eclipse.edc.boot.system.ServiceLocatorImpl;
 import org.eclipse.edc.spi.monitor.Monitor;
 
 

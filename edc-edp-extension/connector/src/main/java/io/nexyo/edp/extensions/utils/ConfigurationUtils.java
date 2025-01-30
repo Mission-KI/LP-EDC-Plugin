@@ -34,12 +34,11 @@ public class ConfigurationUtils {
         return config;
     }
 
-
     public static String readStringProperty(String key, String propertyName) {
         if (config == null) {
             loadConfig();
         }
-        if( key == null || propertyName == null) {
+        if (key == null || propertyName == null) {
             throw new EdcException("Key and propertyName cannot be null");
         }
 
