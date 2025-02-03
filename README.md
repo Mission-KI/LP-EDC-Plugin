@@ -140,3 +140,4 @@ curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
 - Add tests
 - Support for other transfer types
 - Use job infos from request rather than currently used test data
+- Add routes for dataplane results (POST and GET)
