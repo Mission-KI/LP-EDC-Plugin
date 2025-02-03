@@ -56,7 +56,8 @@ Start the http server with the following command:
 python ./util/http-file-server/server.py
 ```
 
-The file server will be used to provide files referenced by the EDC assets.  
+The file server will be used to provide files referenced by the EDC assets. 
+Additionally, the file server acts as the callback address for the dataplane, logging the results of dataplane operations.
 
 Start the mock server for the EDPS and Daseen Api:
 
