@@ -47,7 +47,7 @@ public class DataplaneService {
         this.clientFactory = clientFactory;
         this.assetIndexer = assetIndexer;
         this.logger = LoggingUtils.getLogger();
-        this.callbackAddress = ConfigurationUtils.readStringProperty("dataplane.callback", "url");
+        this.callbackAddress = ConfigurationUtils.readStringProperty("edp.dataplane.callback", "url");
     }
 
     /**

@@ -53,7 +53,7 @@ public class EdpsService {
      * Throws an exception if the required URLs are not configured.
      */
     private void initRoutes() {
-        final String edpsApiUrlKey = "epd.edps.api";
+        final String edpsApiUrlKey = "edp.edps.api";
         final String daseenApiUrlKey = "edp.daseen.api";
 
         final var confBaseUrl = ConfigurationUtils.readStringProperty(edpsApiUrlKey, "url");
