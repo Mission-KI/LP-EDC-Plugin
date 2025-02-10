@@ -91,6 +91,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
         elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/data" in parsed_path:
             self.handle_analysisjob_upload(parsed_path)
         elif parsed_path == "/connector/edp":
+            self.handle_daseen_create()
+        elif parsed_path.startswith("/connector/edp/"):
             self.handle_daseen_upload(parsed_path)
         else:
             self.send_response(404)
@@ -197,23 +199,71 @@ class CustomHandler(SimpleHTTPRequestHandler):
         except Exception as e:
             logging.info("Error creating zip file %s", e)
 
-    def handle_daseen_upload(self, parsed_path):
-        """Handle daseen file uploads."""
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
+    def handle_daseen_create(self):
+        """Handle creation of new daseen connector."""
+        try:
+            resource_id = str(uuid.uuid4())  # Generate a unique ID
+            
+            self.send_response(201)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
 
-        response = {
-            "state": "SUCCESS",
-            "state_detail": "EDPS data published to Daseen"
-        }
-        self.wfile.write(json.dumps(response).encode())
+            response = {
+                "state": "SUCCESS",
+                "resourceId": resource_id,
+                "state_detail": "EDPS connector created"
+            }
+            self.wfile.write(json.dumps(response).encode())
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(f"Error creating connector: {str(e)}".encode())
+
+    def handle_daseen_upload(self, parsed_path):
+        """Handle daseen data upload to specific connector."""
+        try:
+            # Extract ID from path
+            connector_id = parsed_path.split("/")[-1]
+            
+            # Verify content type
+            content_type = self.headers.get('Content-Type', '')
+            if 'application/octet-stream' not in content_type:
+                self.send_error(415, "Unsupported Media Type. Expected application/octet-stream")
+                return
+
+            # Read the binary data
+            content_length = int(self.headers.get('Content-Length', 0))
+            binary_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+
+            response = {
+                "state": "SUCCESS",
+                "state_detail": "EDPS data published to Daseen"
+            }
+            self.wfile.write(json.dumps(response).encode())
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(f"Error uploading data: {str(e)}".encode())
 
     def handle_daseen_update(self, parsed_path):
         """Handle daseen connector updates."""
         try:
             # Extract ID from path
             connector_id = parsed_path.split("/")[-1]
+            
+            # Verify content type
+            content_type = self.headers.get('Content-Type', '')
+            if 'application/octet-stream' not in content_type:
+                self.send_error(415, "Unsupported Media Type. Expected application/octet-stream")
+                return
+
+            # Read the binary data
+            content_length = int(self.headers.get('Content-Length', 0))
+            binary_data = self.rfile.read(content_length)
             
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
