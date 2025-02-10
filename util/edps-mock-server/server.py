@@ -210,8 +210,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
             response = {
                 "state": "SUCCESS",
-                "resourceId": resource_id,
-                "state_detail": "EDPS connector created"
+                "id": resource_id,
+                "message": "EDPS connector created"
             }
             self.wfile.write(json.dumps(response).encode())
         except Exception as e:

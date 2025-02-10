@@ -10,8 +10,6 @@ To extend the EDC with the EDPS functionality, this extension provides the follo
 
 ## Requirements
 - Java 17 (17.0.8+7)
-  - maybe you need to export JAVA_HOME for IntelliJ
-  - if installed with asdf you can do `export JAVA_HOME="$(asdf where java)"`
 
 ## Project Structure
 
@@ -128,9 +126,20 @@ curl -d @edc-edp-extension/connector/src/main/resources/requests/create-result-a
 ### 7. Publish Result to Daseen
 
 ```bash
-curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
+curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
 ```
 
+[optional] Update Daseen entry
+
+```bash
+curl -X PUT http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+```
+
+[optional] Delete Daseen entry
+
+```bash
+curl -X DELETE http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+```
 
 ## Limitations
 
@@ -145,3 +154,21 @@ curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
 - Support for other transfer types
 - Use job infos from request rather than currently used test data
 - Add routes for dataplane results (POST and GET)
+
+## Testing
+
+```bash
+curl -d @edc-edp-extension/connector/src/main/resources/requests/create-asset.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
+  -s | jq 
+curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs  | jq
+curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
+  -H 'content-type: application/json' \
+  -d @edc-edp-extension/connector/src/main/resources/requests/fetch-edps-result.json 
+curl -d @edc-edp-extension/connector/src/main/resources/requests/create-result-asset.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
+  -s | jq 
+curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+curl -X PUT http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+
+```
