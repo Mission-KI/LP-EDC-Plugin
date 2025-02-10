@@ -42,7 +42,7 @@ public class AssetHelperService {
                 .build();
         var result = assetService.update(updatedAsset);
         if (result.failed()) {
-            this.logger.warning("Could not store job information on asset: " + assetId);
+            this.logger.warning("Could not store information on asset: " + assetId);
         }
     }
 

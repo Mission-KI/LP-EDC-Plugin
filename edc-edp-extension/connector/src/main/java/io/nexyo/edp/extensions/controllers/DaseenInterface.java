@@ -14,23 +14,32 @@ public interface DaseenInterface {
     /**
      * Publishes an EDPS asset to the Daseen API.
      *
-     * @param edpAssetId The unique identifier of the EDPS result asset to be published.
+     * @param assetId The unique identifier of the asset to be published.
      * @return A {@link Response} indicating the success or failure of the publication process.
      */
     @POST
-    @Path("/{edpAssetId}")
-    Response publishEdpsAssetToDaseen(@PathParam("edpAssetId") String edpAssetId);
+    @Path("/{assetId}")
+    Response create(@PathParam("assetId") String assetId);
 
-
+    /**
+     * Updates a Daseen resource.
+     *
+     * @param assetId The unique identifier of the asset to be updated.
+     * @return A {@link Response} indicating the success or failure of the update process.
+     */ 
     @PUT
-    @Path("/{edpAssetId}")
-    Response update(@PathParam("edpAssetId") String edpAssetId);
+    @Path("/{assetId}")
+    Response update(@PathParam("assetId") String assetId);
 
-
-
+    /**
+     * Deletes a Daseen resource.
+     *
+     * @param assetId The unique identifier of the asset to be deleted.
+     * @return A {@link Response} indicating the success or failure of the deletion process.
+     */ 
     @DELETE
-    @Path("/{edpAssetId}")
-    Response deleteEdpsAssetFromDaseen(@PathParam("edpAssetId") String edpAssetId);
+    @Path("/{assetId}")
+    Response delete(@PathParam("assetId") String assetId);
 
 
 }

@@ -40,6 +40,8 @@ public class EdpServiceExtension implements ServiceExtension {
 
     private EdpsService edpsService;
 
+    private DaseenService daseenService;
+
 
     @Override
     public String name() {
@@ -57,8 +59,9 @@ public class EdpServiceExtension implements ServiceExtension {
 
         final var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
         this.edpsService = new EdpsService(dataplaneService);
+        this.daseenService = new DaseenService(dataplaneService);
         final var edpsController = new EdpsController(edpsService, assetService);
-        final var daseenController = new DaseenController(edpsService, assetService);
+        final var daseenController = new DaseenController(daseenService, assetService);
 
         webService.registerResource(edpsController);
         webService.registerResource(daseenController);
@@ -68,6 +71,7 @@ public class EdpServiceExtension implements ServiceExtension {
     public void shutdown() {
         logger.info("Shutting down EDP extension");
         this.edpsService.close();
+        this.daseenService.close();
     }
 
 }

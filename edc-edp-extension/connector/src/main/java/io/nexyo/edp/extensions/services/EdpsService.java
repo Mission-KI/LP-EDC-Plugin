@@ -32,7 +32,6 @@ public class EdpsService {
     private final Monitor logger;
     private final Client httpClient = ClientBuilder.newClient();
     private String edpsBaseUrl;
-    private String daseenBaseUrl;
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
 
@@ -55,19 +54,12 @@ public class EdpsService {
      */
     private void initRoutes() {
         final String edpsApiUrlKey = "edp.edps.api";
-        final String daseenApiUrlKey = "edp.daseen.api";
 
         final var confBaseUrl = ConfigurationUtils.readStringProperty(edpsApiUrlKey, "url");
         if (StringUtils.isBlank(confBaseUrl)) {
             throw new EdpException("EDPS API URL is not configured");
         }
         this.edpsBaseUrl = confBaseUrl;
-
-        final var confDaseenBaseUrl = ConfigurationUtils.readStringProperty(daseenApiUrlKey, "url");
-        if (StringUtils.isBlank(confDaseenBaseUrl)) {
-            throw new EdpException("Daseen API URL is not configured");
-        }
-        this.daseenBaseUrl = confDaseenBaseUrl;
     }
 
     /**
@@ -172,45 +164,6 @@ public class EdpsService {
         this.dataplaneService.start(sourceAddress, destinationAddress);
     }
 
-    /**
-     * Publishes the EDPS job result to Daseen.
-     *
-     * @param assetId the asset ID to be published.
-     */
-    public void publishToDaseen(String assetId) {
-        var destinationAddress = HttpDataAddress.Builder.newInstance()
-                .type(FlowType.PUSH.toString())
-                .method(HttpMethod.POST)
-                .baseUrl(String.format("%s/connector/edp", this.daseenBaseUrl))
-                .build();
-
-        this.dataplaneService.start(assetId, destinationAddress);
-    }
-
-
-    public void updateInDaseen(String assetId, String daseenResourceId) {
-        var destinationAddress = HttpDataAddress.Builder.newInstance()
-                .type(FlowType.PUSH.toString())
-                .method(HttpMethod.PUT)
-                .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenResourceId))
-                .build();
-
-        this.dataplaneService.start(assetId, destinationAddress);
-    }
-
-
-    public void deleteInDaseen(String assetId, String daseenJobId) {
-        this.logger.info(String.format("Deleting EDP Entry in Daseen for Asset: %s...", assetId));
-
-        var apiResponse = httpClient.target(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenJobId))
-                .request(MediaType.APPLICATION_JSON)
-                .delete();
-
-        if (apiResponse.getStatus() != 204) {
-            this.logger.warning("Failed to delete EDP entry in Daseen for asset id: " + assetId + ". Status was: " + apiResponse.getStatus());
-            throw new EdpException("EDPS job creation failed for asset id: " + assetId);
-        }
-    }
 
     /**
      * Closes the HTTP client.
