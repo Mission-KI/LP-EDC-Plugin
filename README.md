@@ -8,6 +8,10 @@ To extend the EDC with the EDPS functionality, this extension provides the follo
 - Create a result asset in EDC with the enhanced data
 - Publish the result asset to Daseen
 
+## Requirements
+- Java 17 (17.0.8+7)
+  - maybe you need to export JAVA_HOME for IntelliJ
+  - if installed with asdf you can do `export JAVA_HOME="$(asdf where java)"`
 
 ## Project Structure
 
