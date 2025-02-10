@@ -1,4 +1,4 @@
-package io.nexyo.edp.extensions.services;
+package io.nexyo.edp.extensions.controllers;
 
 
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response;
  * RESTful interface for managing EDPS jobs and their results.
  * Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
  */
-@Path("/edp")
+@Path("/edp/edps")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface EdpsInterface {
@@ -27,7 +27,7 @@ public interface EdpsInterface {
      * @return Response containing the list of EDPS jobs for the specified asset
      */
     @GET
-    @Path("/edps/{assetId}/jobs")
+    @Path("/{assetId}/jobs")
     Response getEdpsJob(@PathParam("assetId") String assetId);
 
     /**
@@ -37,7 +37,7 @@ public interface EdpsInterface {
      * @return Response containing the details of the created job
      */
     @POST
-    @Path("/edps/{assetId}/jobs")
+    @Path("/{assetId}/jobs")
     Response createEdpsJob(@PathParam("assetId") String assetId);
 
     /**
@@ -48,7 +48,7 @@ public interface EdpsInterface {
      * @return Response containing the current status of the specified job
      */
     @GET
-    @Path("/edps/{assetId}/jobs/{jobId}/status")
+    @Path("/{assetId}/jobs/{jobId}/status")
     Response getEdpsJobStatus(@PathParam("assetId") String assetId,
                               @PathParam("jobId") String jobId);
 
@@ -61,20 +61,10 @@ public interface EdpsInterface {
      * @return Response containing the details of the newly created result asset
      */
     @POST
-    @Path("/edps/{assetId}/jobs/{jobId}/result")
+    @Path("/{assetId}/jobs/{jobId}/result")
     Response fetchEdpsJobResult(@PathParam("assetId") String assetId,
                                 @PathParam("jobId") String jobId,
                                 EdpsResultRequestDto edpsResultRequestDto);
 
-
-    /**
-     * Publishes an EDPS asset to the Daseen API.
-     *
-     * @param edpAssetId The unique identifier of the EDPS result asset to be published.
-     * @return A {@link Response} indicating the success or failure of the publication process.
-     */
-    @POST
-    @Path("/daseen/{edpAssetId}/publish")
-    Response publishEdpsAssetToDaseen(@PathParam("edpAssetId") String edpAssetId);
 
 }

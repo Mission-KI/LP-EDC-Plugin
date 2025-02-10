@@ -7,7 +7,6 @@ import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.dtos.internal.GenericResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.Status;
 import io.nexyo.edp.extensions.services.AssetHelperService;
-import io.nexyo.edp.extensions.services.EdpsInterface;
 import io.nexyo.edp.extensions.services.EdpsService;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import jakarta.ws.rs.core.Response;
@@ -102,16 +101,5 @@ public class EdpsController implements EdpsInterface {
                 .build();
     }
 
-    @Override
-    public Response publishEdpsAssetToDaseen(String edpAssetId) {
-        this.edpsService.publishToDaseen(edpAssetId);
 
-        final var response = new GenericResponseDto(
-                "Publishing job for EDP result asset to Daseen dispatched to dataplane. " +
-                        CALLBACK_INFO, Status.OK);
-
-        return Response.status(Response.Status.OK)
-                .entity(response)
-                .build();
-    }
 }

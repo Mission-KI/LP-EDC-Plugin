@@ -1,5 +1,6 @@
 package io.nexyo.edp.extensions.services;
 
+import io.nexyo.edp.extensions.controllers.DaseenController;
 import io.nexyo.edp.extensions.controllers.EdpsController;
 import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
@@ -54,11 +55,13 @@ public class EdpServiceExtension implements ServiceExtension {
         ConfigurationUtils.loadConfig();
         logger.info("EdpServiceExtension initialized");
 
-        var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
+        final var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
         this.edpsService = new EdpsService(dataplaneService);
-        var edpsController = new EdpsController(edpsService, assetService);
+        final var edpsController = new EdpsController(edpsService, assetService);
+        final var daseenController = new DaseenController(edpsService);
 
         webService.registerResource(edpsController);
+        webService.registerResource(daseenController);
     }
 
     @Override
