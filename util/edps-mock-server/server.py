@@ -90,13 +90,36 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_create_analysisjob()
         elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/data" in parsed_path:
             self.handle_analysisjob_upload(parsed_path)
-        elif parsed_path.startswith("/create-edp"):
+        elif parsed_path == "/connector/edp":
             self.handle_daseen_upload(parsed_path)
         else:
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"Not found")
 
+    def do_PUT(self):
+        """Handle PUT requests."""
+        self.log_request_details()
+        parsed_path = urlparse(self.path).path
+
+        if parsed_path.startswith("/connector/edp/"):
+            self.handle_daseen_update(parsed_path)
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not found")
+
+    def do_DELETE(self):
+        """Handle DELETE requests."""
+        self.log_request_details()
+        parsed_path = urlparse(self.path).path
+
+        if parsed_path.startswith("/connector/edp/"):
+            self.handle_daseen_delete(parsed_path)
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not found")
 
     def handle_create_analysisjob(self):
         """Create a new analysis job and return mock response."""
@@ -185,6 +208,42 @@ class CustomHandler(SimpleHTTPRequestHandler):
             "state_detail": "EDPS data published to Daseen"
         }
         self.wfile.write(json.dumps(response).encode())
+
+    def handle_daseen_update(self, parsed_path):
+        """Handle daseen connector updates."""
+        try:
+            # Extract ID from path
+            connector_id = parsed_path.split("/")[-1]
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+
+            response = {
+                "state": "SUCCESS",
+                "state_detail": f"EDPS connector {connector_id} updated successfully"
+            }
+            self.wfile.write(json.dumps(response).encode())
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(f"Error updating connector: {str(e)}".encode())
+
+    def handle_daseen_delete(self, parsed_path):
+        """Handle daseen connector deletion."""
+        try:
+            # Extract ID from path
+            connector_id = parsed_path.split("/")[-1]
+            
+            # For 204 No Content, we only send the status code and end headers
+            self.send_response(204)
+            self.end_headers()
+            # Don't write any response body for 204
+            
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(f"Error deleting connector: {str(e)}".encode())
 
 
 if __name__ == "__main__":
