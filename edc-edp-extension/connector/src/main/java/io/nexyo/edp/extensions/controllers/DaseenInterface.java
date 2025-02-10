@@ -23,8 +23,8 @@ public interface DaseenInterface {
 
 
     @PUT
-    @Path("/{daseenResourceId}")
-    Response update(@PathParam("daseenResourceId") String daseenResourceId);
+    @Path("/{edpAssetId}")
+    Response update(@PathParam("edpAssetId") String edpAssetId);
 
 
 

@@ -14,6 +14,7 @@ import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.utils.MockUtils;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
+import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -179,16 +180,19 @@ public class EdpsService {
     public void publishToDaseen(String assetId) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
+                .method(HttpMethod.POST)
                 .baseUrl(String.format("%s/connector/edp", this.daseenBaseUrl))
                 .build();
 
         this.dataplaneService.start(assetId, destinationAddress);
     }
 
-    public void updateInDaseen(String assetId, String daseenJobId) {
+
+    public void updateInDaseen(String assetId, String daseenResourceId) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenJobId))
+                .method(HttpMethod.PUT)
+                .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenResourceId))
                 .build();
 
         this.dataplaneService.start(assetId, destinationAddress);

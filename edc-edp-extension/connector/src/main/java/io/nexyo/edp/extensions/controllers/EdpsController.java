@@ -44,7 +44,7 @@ public class EdpsController implements EdpsInterface {
     public Response getEdpsJob(String assetId) {
         logger.info("Getting latest EDP job for asset " + assetId);
 
-        var jobOptional = this.assetHelperService.getEdpsJobId(assetId);
+        var jobOptional = this.assetHelperService.load(assetId, AssetHelperService.EDPS_JOB_ID_KEY);
         if (jobOptional.isEmpty()) {
             var response = new GenericResponseDto("No Job found for asset: " + assetId, Status.NOT_FOUND);
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
@@ -78,7 +78,7 @@ public class EdpsController implements EdpsInterface {
         edpsJobDto.setAssetId(assetId);
         edpsJobDto.setDetails("Posting analysis data to EDPS initiated. " + CALLBACK_INFO);
 
-        this.assetHelperService.persistJobInfo(assetId, edpsJobDto);
+        this.assetHelperService.persist(assetId, AssetHelperService.EDPS_JOB_ID_KEY, edpsJobDto.getJobId());
         this.edpsService.sendAnalysisData(edpsJobDto);
 
         return Response.status(Response.Status.OK)

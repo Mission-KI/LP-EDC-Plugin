@@ -58,7 +58,7 @@ public class EdpServiceExtension implements ServiceExtension {
         final var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
         this.edpsService = new EdpsService(dataplaneService);
         final var edpsController = new EdpsController(edpsService, assetService);
-        final var daseenController = new DaseenController(edpsService);
+        final var daseenController = new DaseenController(edpsService, assetService);
 
         webService.registerResource(edpsController);
         webService.registerResource(daseenController);
