@@ -1,7 +1,7 @@
 package io.nexyo.edp.extensions.dtos.internal;
 
 /**
- * Enum for the status of a job.
+ * Enum for the status.
  */
 public enum Status {
     OK,
