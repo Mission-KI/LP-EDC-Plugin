@@ -222,19 +222,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def handle_daseen_upload(self, parsed_path):
         """Handle daseen data upload to specific connector."""
         try:
-            # Extract ID from path
-            connector_id = parsed_path.split("/")[-1]
-            
-            # Verify content type
-            content_type = self.headers.get('Content-Type', '')
-            if 'application/octet-stream' not in content_type:
-                self.send_error(415, "Unsupported Media Type. Expected application/octet-stream")
-                return
-
-            # Read the binary data
-            content_length = int(self.headers.get('Content-Length', 0))
-            binary_data = self.rfile.read(content_length)
-            
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -252,19 +239,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def handle_daseen_update(self, parsed_path):
         """Handle daseen connector updates."""
         try:
-            # Extract ID from path
             connector_id = parsed_path.split("/")[-1]
-            
-            # Verify content type
-            content_type = self.headers.get('Content-Type', '')
-            if 'application/octet-stream' not in content_type:
-                self.send_error(415, "Unsupported Media Type. Expected application/octet-stream")
-                return
 
-            # Read the binary data
-            content_length = int(self.headers.get('Content-Length', 0))
-            binary_data = self.rfile.read(content_length)
-            
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -282,9 +258,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def handle_daseen_delete(self, parsed_path):
         """Handle daseen connector deletion."""
         try:
-            # Extract ID from path
-            connector_id = parsed_path.split("/")[-1]
-            
             # For 204 No Content, we only send the status code and end headers
             self.send_response(204)
             self.end_headers()

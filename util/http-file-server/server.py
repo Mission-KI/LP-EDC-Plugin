@@ -69,7 +69,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             content_length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_length).decode("utf-8") if content_length else ""
             logging.info(f"Request Body: {body}")
-            self.send_response(201)
+            self.send_response(200)
             self.end_headers()
         else:
             self.send_response(404)
