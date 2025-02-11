@@ -14,7 +14,6 @@ import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.utils.MockUtils;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -134,8 +133,7 @@ public class EdpsService {
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data", this.edpsBaseUrl, edpsJobDto.getJobId()))
-                .property("header:upload_file", "data.csv")
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", this.edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
         this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress);

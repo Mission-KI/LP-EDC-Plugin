@@ -34,16 +34,25 @@ class CustomHandler(SimpleHTTPRequestHandler):
         if parsed_path.startswith("/v1/dataspace/analysisjob/") and "/result" in parsed_path:
             self.serve_analysisjob_result(parsed_path)
         elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/status" in parsed_path:
-            self.serve_analysisjob_status()
+            self.serve_analysisjob_status(parsed_path)
         else:
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"Not found")
 
-    def serve_analysisjob_status(self):
+    def serve_analysisjob_status(self, parsed_path):
         """Serve job status."""
+        try:
+            parts = parsed_path.split("/")
+            job_id = parts[4]  # Extract job_id
+        except IndexError:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Invalid path format.")
+            return
+
         response = {
-            "job_id": "xxx",
+            "job_id": f"{job_id}",
             "state": "WAITING_FOR_DATA",
             "state_detail": "Job is waiting for data to be uploaded."
         }
@@ -88,7 +97,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
         if parsed_path == "/v1/dataspace/analysisjob":
             self.handle_create_analysisjob()
-        elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/data" in parsed_path:
+        elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/data/file" in parsed_path:
             self.handle_analysisjob_upload(parsed_path)
         elif parsed_path == "/connector/edp":
             self.handle_daseen_create()
