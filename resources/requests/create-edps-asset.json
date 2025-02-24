@@ -1,0 +1,16 @@
+{
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@id": "edps1",
+    "properties": {
+      "name": "EDPS Service",
+      "contenttype": "application/json"
+    },
+    "dataAddress": {
+      "type": "HttpData",
+      "name": "EDPS Service",
+      "baseUrl": "https://jsonplaceholder.typicode.com/users",
+      "proxyPath": "true"
+    }
+  }

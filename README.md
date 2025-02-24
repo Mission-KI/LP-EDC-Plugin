@@ -2,6 +2,7 @@
 
 
 To extend the EDC with the EDPS functionality, this extension provides the following features:
+- Establish a contract to an EDPS
 - Create an EDPS job to enhance an asset
 - Retrieve the enhanced asset from EDPS
 - Exposes endpoints to retrieve EDPS job information
@@ -26,7 +27,7 @@ It is sufficient to change the `edc.edps.url` and `edc.daseen.url` properties to
 
 The Api reference for the:
 - Management Api can be found [here](https://github.com/eclipse-edc/Connector/blob/gh-pages/openapi/management-api/3.0.6/management-api.yaml).  
-- Extension Api can be found [here](edc-edps-extension/connector/src/main/resources/edc-edps-openapi.yml).
+- Extension Api can be found [here](resources/edc-edps-openapi.yml).
 
 
 ## EDP Workflow
@@ -36,15 +37,21 @@ The Api reference for the:
 Build the connector:
 
 ```bash
-./gradlew edc-edp-extension:connector:build
+./gradlew connector:build
 ```
 
 Note: The gradle-wrapper.jar needs to be in the `.gradle/wrapper/` directory.
 
-Run the connector:
+Run the provider connector:
 
 ```bash
-java -Dedc.fs.config=edc-edp-extension/connector/src/main/resources/application.properties -jar edc-edp-extension/connector/build/libs/connector.jar
+java -Dedc.fs.config=resources/configuration/provider-configuration.properties -jar connector/build/libs/connector.jar
+```
+
+Run the edps and daseen services connector:
+
+```bash
+java -Dedc.fs.config=resources/configuration/service-provider-configuration.properties -jar connector/build/libs/connector.jar
 ```
 
 Alternatively, start the `io/nexyo/edp/extensions/Runner.java` in the IDE.
@@ -67,12 +74,113 @@ Start the mock server for the EDPS and Daseen Api:
 python ./util/edps-mock-server/server.py
 ```
 
-### 3. Create Asset
+
+### Setup Service Provider side
+
+#### 1. Create EDPS Asset
+
+```bash
+curl -d @resources/requests/create-edps-asset.json \
+  -H 'content-type: application/json' http://localhost:29193/management/v3/assets \
+  -s | jq 
+```
+
+[Optional] Check if asset is created:
+
+```bash 
+curl -X POST http://localhost:29193/management/v3/assets/request | jq
+```
+
+#### 2. Create Policy
+
+```bash
+curl -d @resources/requests/create-policy.json \
+  -H 'content-type: application/json' http://localhost:29193/management/v3/policydefinitions \
+  -s | jq 
+```
+
+[Optional] Check if policy is created:
+
+```bash 
+curl -X POST http://localhost:29193/management/v3/policydefinitions/request | jq
+```
+
+#### 3. Create Contract Definition
+
+
+```bash
+curl -d @resources/requests/create-contract-definition.json \
+  -H 'content-type: application/json' http://localhost:29193/management/v3/contractdefinitions \
+  -s | jq 
+```
+
+[Optional] Check if contract definition is created:
+
+```bash 
+curl -X POST http://localhost:29193/management/v3/contractdefinitions/request | jq
+```
+
+### Establish EDPS contract
+
+#### 1. Fetch Catalog
+
+```bash
+curl -d @resources/requests/fetch-service-provider-catalog.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/catalog/request \
+  -s | jq 
+```
+
+#### 2. Negotiate contract
+
+Please replace the `{{contract-offer-id}}` placeholder in the `negotiate-edps-contract.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
+
+```bash
+curl -d @resources/requests/negotiate-edps-contract.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/contractnegotiations \
+  -s | jq 
+```
+
+[Optional] Check if contract negotiation is successfull:
+
+```bash 
+curl -X POST http://localhost:29193/management/v3/contractnegotiations/request | jq
+```
+
+#### 3. Create transfer process
+
+Please replace the `{{contract-id}}` placeholder in the `start-transfer.json` file with the contract id you found in the check contract negotiations request.
+
+```bash
+curl -d @resources/requests/start-transfer.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/transferprocesses \
+  -s | jq 
+```
+
+[Optional] Check if transfer process is successfull:
+
+```bash 
+curl -X POST http://localhost:19193/management/v3/transferprocesses/request | jq
+```
+
+#### 4. Get EDR for transfer process
+
+Please replace the `<transfer-process-id>` placeholder in the request with the id you found in the transfer processes request.
+
+```bash 
+curl -X GET http://localhost:19193/management/v3/edrs/<transfer-process-id>/dataaddress | jq
+```
+
+### Run EDP flow for asset
+
+- **TODO**: use contract agreement for edps
+- **TODO**: use contract agreement for daseen
+
+### 1. Create Asset
 
 Use the management Api to create an asset:
 
 ```bash
-curl -d @edc-edp-extension/connector/src/main/resources/requests/create-asset.json \
+curl -d @resources/requests/create-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
   -s | jq 
 ```
@@ -80,14 +188,16 @@ curl -d @edc-edp-extension/connector/src/main/resources/requests/create-asset.js
 [Optional] Check if asset is created:
 
 ```bash 
-curl  http://localhost:19193/management/v3/assets/assetId1 | jq
+curl -X POST http://localhost:19193/management/v3/assets/request | jq
 ```
 
 
-### 4. Create EDPS Job
+### 2. Create EDPS Job
 
-```bash 
-curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs  | jq
+```bash
+curl -d @resources/requests/create-edps-job.json \
+  -H 'content-type: application/json' http://localhost:19191/api/edp/edps/assetId1/jobs \
+  -s | jq
 ```
 
 Note the `jobId` in the response as it is needed for the next step.
@@ -104,26 +214,26 @@ curl http://localhost:19191/api/edp/edps/assetId1/jobs | jq
 curl  http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/status  | jq
 ```
 
-### 5. Get EDPS Result
+### 3. Get EDPS Result
 
 Replace the jobId in the request with the jobId from the previous step.
 
 ```bash
 curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
   -H 'content-type: application/json' \
-  -d @edc-edp-extension/connector/src/main/resources/requests/fetch-edps-result.json 
-````
+  -d @resources/requests/fetch-edps-result.json 
+```
 
-### 6. Create Result Asset
+### 4. Create Result Asset
 
 ```bash
-curl -d @edc-edp-extension/connector/src/main/resources/requests/create-result-asset.json \
+curl -d @resources/requests/create-result-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
   -s | jq 
 ```
 
 
-### 7. Publish Result to Daseen
+### 5. Publish Result to Daseen
 
 ```bash
 curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq

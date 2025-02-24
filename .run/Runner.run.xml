@@ -2,7 +2,7 @@
   <configuration default="false" name="Runner" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="io.nexyo.edp.extensions.Runner" />
     <module name="edc-edp-extension.edc-edp-extension.connector.main" />
-    <option name="VM_PARAMETERS" value="-Dedc.fs.config=edc-edp-extension/connector/src/main/resources/application.properties -Djava.util.logging.config.file=edc-edp-extension/connector/src/main/resources/logging.properties" />
+    <option name="VM_PARAMETERS" value="-Dedc.fs.config=resources/configuration/provider.properties" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="io.nexyo.edp.extensions.utils.*" />
