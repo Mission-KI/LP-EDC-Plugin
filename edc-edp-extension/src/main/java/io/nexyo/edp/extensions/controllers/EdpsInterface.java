@@ -1,6 +1,7 @@
 package io.nexyo.edp.extensions.controllers;
 
 
+import io.nexyo.edp.extensions.dtos.internal.EdpsCreateJobRequestDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -34,11 +35,12 @@ public interface EdpsInterface {
      * Creates a new EDPS job for a specific asset and submits the associated file to EDPS.
      *
      * @param assetId The unique identifier of the asset to create a job for
+     * @param edpsCreateJobRequestDto The request payload containing create job parameters
      * @return Response containing the details of the created job
      */
     @POST
     @Path("/{assetId}/jobs")
-    Response createEdpsJob(@PathParam("assetId") String assetId);
+    Response createEdpsJob(@PathParam("assetId") String assetId, EdpsCreateJobRequestDto edpsCreateJobRequestDto);
 
     /**
      * Retrieves the current status of a specific EDPS job.

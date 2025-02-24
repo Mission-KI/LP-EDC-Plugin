@@ -2,10 +2,7 @@ package io.nexyo.edp.extensions.controllers;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
-import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
-import io.nexyo.edp.extensions.dtos.internal.GenericResponseDto;
-import io.nexyo.edp.extensions.dtos.internal.Status;
+import io.nexyo.edp.extensions.dtos.internal.*;
 import io.nexyo.edp.extensions.services.AssetHelperService;
 import io.nexyo.edp.extensions.services.EdpsService;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
@@ -71,9 +68,9 @@ public class EdpsController implements EdpsInterface {
     }
 
     @Override
-    public Response createEdpsJob(String assetId) {
+    public Response createEdpsJob(String assetId, EdpsCreateJobRequestDto edpsCreateJobRequestDto) {
         logger.info("Creating EDP job...");
-        var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId);
+        var edpsJobResponseDto = this.edpsService.createEdpsJob(assetId, edpsCreateJobRequestDto.contractId());
         var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
         edpsJobDto.setAssetId(assetId);
         edpsJobDto.setDetails("Posting analysis data to EDPS initiated. " + CALLBACK_INFO);

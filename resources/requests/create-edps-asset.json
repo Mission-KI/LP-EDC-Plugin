@@ -10,7 +10,10 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "https://jsonplaceholder.typicode.com/users",
-      "proxyPath": "true"
+      "baseUrl": "http://localhost:8081",
+      "proxyPath": "true",
+      "proxyMethod": "true",
+      "proxyQueryParams": "true",
+      "proxyBody": "true"
     }
   }

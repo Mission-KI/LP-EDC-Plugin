@@ -18,9 +18,15 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
+import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
+import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.domain.transfer.FlowType;
+
+import static org.eclipse.edc.spi.query.Criterion.criterion;
 
 
 /**
@@ -33,18 +39,24 @@ public class EdpsService {
     private String edpsBaseUrl;
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
+    private final ContractAgreementService contractAgreementService;
+    private final TransferProcessService transferProcessService;
+    private final EndpointDataReferenceStore edrStore;
 
     /**
      * Constructs an instance of EdpsService.
      *
      * @param dataplaneService the service responsible for handling data transfers.
      */
-    public EdpsService(DataplaneService dataplaneService) {
+    public EdpsService(DataplaneService dataplaneService, ContractAgreementService contractAgreementService, TransferProcessService transferProcessService, EndpointDataReferenceStore edrStore) {
         this.logger = LoggingUtils.getLogger();
         initRoutes();
 
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.dataplaneService = dataplaneService;
+        this.contractAgreementService = contractAgreementService;
+        this.transferProcessService = transferProcessService;
+        this.edrStore = edrStore;
     }
 
     /**
@@ -68,15 +80,42 @@ public class EdpsService {
      * @return the response DTO containing job details.
      * @throws EdpException if the job creation fails.
      */
-    public EdpsJobResponseDto createEdpsJob(String assetId) {
+    public EdpsJobResponseDto createEdpsJob(String assetId, String contractId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
+
+        // prototyp implementation to test edps usage over contract agreement
+        var contractAgreement = this.contractAgreementService.findById(contractId);
+        if (contractAgreement == null) {
+            throw new EdpException("Contract agreement not found for contract ID: " + contractId);
+        }
+
+        var querySpec = QuerySpec.Builder.newInstance().filter(criterion("contractId", "=", contractId)).build();
+        var transferProcess = this.transferProcessService.search(querySpec);
+
+        var tp = transferProcess.map(it -> it.stream().findFirst().orElse(null)).orElse(null);
+        if (tp == null) {
+            throw new EdpException("Transfer process not found for contract ID: " + contractId);
+        }
+
+        var epdr = this.edrStore.resolveByTransferProcess(tp.getId());
+        if (epdr.failed()) {
+            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + tp.getId());
+        }
+
+        var props = epdr.getContent().getProperties();
+        var edpsBaseUrlFromContract = props.get("https://w3id.org/edc/v0.0.1/ns/endpoint");
+        var edpsAuthorizationFromContract = props.get("https://w3id.org/edc/v0.0.1/ns/authorization");
+
+        // ----prototyp implementation to test edps usage over contract agreement
+
         Jsonb jsonb = JsonbBuilder.create();
         var requestBody = MockUtils.createRequestBody(assetId);
 
         String jsonRequestBody = jsonb.toJson(requestBody);
 
-        var apiResponse = httpClient.target(String.format("%s%s", this.edpsBaseUrl, "/v1/dataspace/analysisjob"))
+        var apiResponse = httpClient.target(String.format("%s%s", edpsBaseUrlFromContract, "/v1/dataspace/analysisjob"))
                 .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", edpsAuthorizationFromContract)
                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 
 

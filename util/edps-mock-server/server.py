@@ -23,6 +23,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def log_request_details(self):
         """Log details of the incoming request."""
         logging.info("--- Request Details ---")
+        logging.info(f"Method: {self.command}")
         logging.info(f"Path: {self.path}")
         logging.info(f"Headers: {self.headers}")
 
