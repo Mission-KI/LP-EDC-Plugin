@@ -92,7 +92,7 @@ public class EdpsService {
         var edpsBaseUrlFromContract = edrProperties.get("https://w3id.org/edc/v0.0.1/ns/endpoint");
         var edpsAuthorizationFromContract = edrProperties.get("https://w3id.org/edc/v0.0.1/ns/authorization");
 
-        Jsonb jsonb = JsonbBuilder.create();
+        var jsonb = JsonbBuilder.create();
         var requestBody = MockUtils.createRequestBody(assetId);
         String jsonRequestBody = jsonb.toJson(requestBody);
 
@@ -107,8 +107,7 @@ public class EdpsService {
             throw new EdpException("EDPS job creation failed for asset id: " + assetId);
         }
 
-        String responseBody = apiResponse.readEntity(String.class);
-
+        var responseBody = apiResponse.readEntity(String.class);
         this.logger.info("EDPS job created successfully for asset id: " + assetId + ". Edps Server responded: " + responseBody);
 
         try {
