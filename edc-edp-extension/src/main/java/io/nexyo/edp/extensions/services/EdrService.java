@@ -9,7 +9,6 @@ import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.spi.query.QuerySpec;
 
 import java.util.Comparator;
-import java.util.Map;
 
 import static org.eclipse.edc.spi.query.Criterion.criterion;
 
@@ -26,12 +25,39 @@ public class EdrService {
     }
 
     /**
+     * Retrieves Endpoint Data Reference properties from the contract.
+     *
+     * @param contractId the contract ID.
+     * @return the corresponding value of the given key.
+     */
+    public String getEdrProperty(String contractId, String key) {
+        var transferProcess = this.getCurrentTransferProcess(contractId);
+
+        var endpointDataReference = this.edrStore.resolveByTransferProcess(transferProcess.getId());
+        if (endpointDataReference.failed()) {
+            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + transferProcess.getId());
+        }
+
+        var edrProperties = endpointDataReference.getContent()
+                .getProperties();
+
+        var edpsBaseUrlFromContract = edrProperties.getOrDefault(key, "")
+                .toString();
+
+        if (StringUtils.isBlank(edpsBaseUrlFromContract)) {
+            throw new EdpException("Could not extract EDT property with key " + key);
+        }
+
+        return edpsBaseUrlFromContract;
+    }
+
+    /**
      * Retrieves the current transfer process for a given contract ID.
      *
      * @param contractId the contract ID.
      * @return the current transfer process.
      */
-    public TransferProcess getCurrentTransferProcess(String contractId) {
+    private TransferProcess getCurrentTransferProcess(String contractId) {
         var contractAgreement = this.contractAgreementService.findById(contractId);
         if (contractAgreement == null) {
             throw new EdpException("Contract agreement not found for contract ID: " + contractId);
@@ -53,39 +79,5 @@ public class EdrService {
         }
 
         return currentTransferProcess;
-    }
-
-    /**
-     * Retrieves Endpoint Data Reference properties from the contract.
-     *
-     * @param transferProcess the transfer process of the service.
-     * @return the corresponding value of the given key.
-     */
-    public String getEdrProperty(TransferProcess transferProcess, String key) {
-        var edrProperties = this.getEdrProperties(transferProcess);
-        var edpsBaseUrlFromContract = edrProperties.getOrDefault(key, "")
-                .toString();
-
-        if (StringUtils.isBlank(edpsBaseUrlFromContract)) {
-            throw new EdpException("Could not extract EDT property with key " + key);
-        }
-
-        return edpsBaseUrlFromContract;
-    }
-
-    /**
-     * Retrieves the properties of an EDPS service.
-     *
-     * @param transferProcess the transfer process of the service.
-     * @return the properties of the EDPS service.
-     */
-    public Map<String, Object> getEdrProperties(TransferProcess transferProcess) {
-        var endpointDataReference = this.edrStore.resolveByTransferProcess(transferProcess.getId());
-        if (endpointDataReference.failed()) {
-            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + transferProcess.getId());
-        }
-
-        return endpointDataReference.getContent()
-                .getProperties();
     }
 }

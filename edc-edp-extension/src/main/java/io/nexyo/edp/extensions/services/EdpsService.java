@@ -33,6 +33,9 @@ public class EdpsService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
     private final EdrService edrService;
+    private static final String EDR_PROPERTY_EDPS_BASE_URL_KEY = "https://w3id.org/edc/v0.0.1/ns/edpsBaseUrl";
+    private static final String EDR_PROPERTY_EDPS_AUTH_KEY = "https://w3id.org/edc/v0.0.1/ns/authorization";
+
 
     /**
      * Constructs an instance of EdpsService.
@@ -71,9 +74,8 @@ public class EdpsService {
      */
     public EdpsJobResponseDto createEdpsJob(String assetId, String contractId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
-        var currentTransferProcess = this.edrService.getCurrentTransferProcess(contractId);
-        var edpsBaseUrlFromContract = this.edrService.getEdrProperty(currentTransferProcess,"https://w3id.org/edc/v0.0.1/ns/endpoint");
-        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(currentTransferProcess, "https://w3id.org/edc/v0.0.1/ns/authorization");
+        var edpsBaseUrlFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
         var jsonb = JsonbBuilder.create();
         var requestBody = MockUtils.createRequestBody(assetId);
@@ -111,8 +113,13 @@ public class EdpsService {
     public EdpsJobResponseDto getEdpsJobStatus(String jobId) {
         this.logger.info(String.format("Fetching EDPS Job status for job %s...", jobId));
 
-        var apiResponse = this.httpClient.target(String.format("%s/v1/dataspace/analysisjob/%s/status", this.edpsBaseUrl, jobId))
+        var contractId = "contractId"; // todo: get from edps job
+        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+
+        var apiResponse = this.httpClient.target(String.format("%s/v1/dataspace/analysisjob/%s/status", edpsBaseUrl, jobId))
                 .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", edpsAuthorizationFromContract)
                 .get();
 
         if (apiResponse.getStatus() < 200 || apiResponse.getStatus() >= 300) {
@@ -136,8 +143,13 @@ public class EdpsService {
      * @param edpsJobDto the job DTO containing job details.
      */
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
+        var contractId = "contractId"; // todo: pass contractId
+        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
+                .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
                 .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", this.edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
@@ -153,6 +165,10 @@ public class EdpsService {
      */
     public void fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
         this.logger.info(String.format("Fetching EDPS Job Result ZIP for asset %s for job %s...", assetId, jobId));
+        var contractId = "contractId"; // todo: pass contractId
+        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
@@ -161,6 +177,7 @@ public class EdpsService {
 
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
+                .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
                 .baseUrl(edpResultRequestDto.destinationAddress())
                 .build();
 
