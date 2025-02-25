@@ -52,6 +52,8 @@ public class EdpServiceExtension implements ServiceExtension {
 
     private EdpsService edpsService;
 
+    private EdrService edrService;
+
     private DaseenService daseenService;
 
 
@@ -70,7 +72,8 @@ public class EdpServiceExtension implements ServiceExtension {
         logger.info("EdpServiceExtension initialized");
 
         final var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
-        this.edpsService = new EdpsService(dataplaneService, contractAgreementService, transferProcessService, edrStore);
+        this.edrService = new EdrService(contractAgreementService, transferProcessService, edrStore);
+        this.edpsService = new EdpsService(dataplaneService, edrService);
         this.daseenService = new DaseenService(dataplaneService);
         final var edpsController = new EdpsController(edpsService, assetService);
         final var daseenController = new DaseenController(daseenService, assetService);
