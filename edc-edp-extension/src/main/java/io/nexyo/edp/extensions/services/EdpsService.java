@@ -20,11 +20,15 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
+import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.domain.transfer.FlowType;
+
+import java.util.Comparator;
+import java.util.Map;
 
 import static org.eclipse.edc.spi.query.Criterion.criterion;
 
@@ -82,35 +86,14 @@ public class EdpsService {
      */
     public EdpsJobResponseDto createEdpsJob(String assetId, String contractId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
+        var currentTransferProcess = getCurrentTransferProcess(contractId);
 
-        // prototyp implementation to test edps usage over contract agreement
-        var contractAgreement = this.contractAgreementService.findById(contractId);
-        if (contractAgreement == null) {
-            throw new EdpException("Contract agreement not found for contract ID: " + contractId);
-        }
-
-        var querySpec = QuerySpec.Builder.newInstance().filter(criterion("contractId", "=", contractId)).build();
-        var transferProcess = this.transferProcessService.search(querySpec);
-
-        var tp = transferProcess.map(it -> it.stream().findFirst().orElse(null)).orElse(null);
-        if (tp == null) {
-            throw new EdpException("Transfer process not found for contract ID: " + contractId);
-        }
-
-        var epdr = this.edrStore.resolveByTransferProcess(tp.getId());
-        if (epdr.failed()) {
-            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + tp.getId());
-        }
-
-        var props = epdr.getContent().getProperties();
-        var edpsBaseUrlFromContract = props.get("https://w3id.org/edc/v0.0.1/ns/endpoint");
-        var edpsAuthorizationFromContract = props.get("https://w3id.org/edc/v0.0.1/ns/authorization");
-
-        // ----prototyp implementation to test edps usage over contract agreement
+        var edrProperties = this.getEdrProperties(currentTransferProcess);
+        var edpsBaseUrlFromContract = edrProperties.get("https://w3id.org/edc/v0.0.1/ns/endpoint");
+        var edpsAuthorizationFromContract = edrProperties.get("https://w3id.org/edc/v0.0.1/ns/authorization");
 
         Jsonb jsonb = JsonbBuilder.create();
         var requestBody = MockUtils.createRequestBody(assetId);
-
         String jsonRequestBody = jsonb.toJson(requestBody);
 
         var apiResponse = httpClient.target(String.format("%s%s", edpsBaseUrlFromContract, "/v1/dataspace/analysisjob"))
@@ -133,6 +116,50 @@ public class EdpsService {
         } catch (JsonProcessingException e) {
             throw new EdpException("Unable to map response to DTO ", e);
         }
+    }
+
+    /**
+     * Retrieves the current transfer process for a given contract ID.
+     * @param contractId the contract ID.
+     * @return the current transfer process.
+     */
+    private TransferProcess getCurrentTransferProcess(String contractId) {
+        var contractAgreement = this.contractAgreementService.findById(contractId);
+        if (contractAgreement == null) {
+            throw new EdpException("Contract agreement not found for contract ID: " + contractId);
+        }
+
+        var querySpec = QuerySpec.Builder.newInstance()
+                .filter(criterion("contractId", "=", contractId))
+                .build();
+        var transferProcesses = this.transferProcessService.search(querySpec);
+
+        var currentTransferProcess = transferProcesses.map(it -> it.stream()
+                        .filter(tp -> tp.getState () == 1) // todo: check if this is the correct state
+                        .max(Comparator.comparing(TransferProcess::getStateTimestamp))
+                        .orElse(null))
+                .orElse(null);
+
+        if (currentTransferProcess == null) {
+            throw new EdpException("Transfer process not found for contract ID: " + contractId);
+        }
+
+        return currentTransferProcess;
+    }
+
+    /**
+     * Retrieves the properties of an EDPS service.
+     * @param transferProcess the transfer process of the service.
+     * @return the properties of the EDPS service.
+     */
+    private Map<String, Object> getEdrProperties(TransferProcess transferProcess) {
+        var endpointDataReference = this.edrStore.resolveByTransferProcess(transferProcess.getId());
+        if (endpointDataReference.failed()) {
+            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + transferProcess.getId());
+        }
+
+        return endpointDataReference.getContent()
+                .getProperties();
     }
 
     /**
