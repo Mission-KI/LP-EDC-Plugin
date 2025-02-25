@@ -8,7 +8,7 @@ import org.eclipse.edc.boot.system.runtime.BaseRuntime;
 public class Runner extends BaseRuntime {
 
     /**
-     * Main method to start the EDC - EDPextension.
+     * Main method to start the EDC - EDP extension.
      *
      *
      * @param args the command line arguments
