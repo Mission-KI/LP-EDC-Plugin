@@ -9,8 +9,6 @@
             "projectName": "edc-edp-extension",
             "vmArgs": [
                 "-Dedc.fs.config=resources/configuration/provider-configuration.properties",
-                "-Dedc.transfer.proxy.token.signer.privatekey.alias=1",
-                "-Dedc.transfer.proxy.token.verifier.publickey.alias=1"
             ]
         },
         {
@@ -21,8 +19,6 @@
             "projectName": "edc-edp-extension",
             "vmArgs": [
                 "-Dedc.fs.config=resources/configuration/service-provider-configuration.properties",
-                "-Dedc.transfer.proxy.token.signer.privatekey.alias=1",
-                "-Dedc.transfer.proxy.token.verifier.publickey.alias=1"
             ]
         }
     ]
