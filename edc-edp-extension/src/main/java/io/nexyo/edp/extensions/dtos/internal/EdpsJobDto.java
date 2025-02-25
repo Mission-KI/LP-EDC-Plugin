@@ -26,6 +26,9 @@ public class EdpsJobDto {
     @JsonProperty("state_detail")
     private String details;
 
+    @JsonProperty("contract_id")
+    private String contractId;
+
     /**
      * Default constructor.
      */
@@ -134,5 +137,13 @@ public class EdpsJobDto {
      */
     public void setAssetId(String assetId) {
         this.assetId = assetId;
+    }
+
+    public String getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(String contractId) {
+        this.contractId = contractId;
     }
 }

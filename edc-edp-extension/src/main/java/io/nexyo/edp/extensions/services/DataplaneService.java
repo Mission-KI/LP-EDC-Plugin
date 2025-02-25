@@ -74,7 +74,7 @@ public class DataplaneService {
      * @param destinationAddress the destination data address.
      * @throws EdpException if the source address for the asset is not found.
      */
-    public void start(String assetId, DataAddress destinationAddress) {
+    public void start(String assetId, DataAddress destinationAddress, String processId, String participantId, String agreementId) {
         var sourceAddress = this.assetIndexer.resolveForAsset(assetId);
 
         if (sourceAddress == null) {
@@ -85,7 +85,7 @@ public class DataplaneService {
         var dataplaneInstance = getDataplane(sourceAddress);
         this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
-        var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress);
+        var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress, processId, participantId, agreementId);
 
         var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)
@@ -103,11 +103,11 @@ public class DataplaneService {
      * @param sourceAddress      the source data address.
      * @param destinationAddress the destination data address.
      */
-    public void start(DataAddress sourceAddress, DataAddress destinationAddress) {
+    public void start(DataAddress sourceAddress, DataAddress destinationAddress, String processId, String participantId, String agreementId) {
         var dataplaneInstance = getDataplane(sourceAddress);
         this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
-        var dataFlowRequest = createDataFlowRequest(null, sourceAddress, destinationAddress);
+        var dataFlowRequest = createDataFlowRequest(null, sourceAddress, destinationAddress, processId, participantId, agreementId);
 
         var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)
@@ -127,7 +127,7 @@ public class DataplaneService {
      * @param destinationDataAddress the destination data address.
      * @return a {@link DataFlowStartMessage} representing the request.
      */
-    private DataFlowStartMessage createDataFlowRequest(String assetId, DataAddress sourceDataAddress, DataAddress destinationDataAddress) {
+    private DataFlowStartMessage createDataFlowRequest(String assetId, DataAddress sourceDataAddress, DataAddress destinationDataAddress, String processId, String participantId, String agreementId) {
         TransferType transferType = new TransferType("HttpData", FlowType.PUSH);
 
         return DataFlowStartMessage.Builder.newInstance()
@@ -135,9 +135,9 @@ public class DataplaneService {
                 .assetId(assetId)
                 .sourceDataAddress(sourceDataAddress)
                 .destinationDataAddress(destinationDataAddress)
-                .processId("")
-                .participantId("")
-                .agreementId("")
+                .processId(processId)
+                .participantId(participantId)
+                .agreementId(agreementId)
                 .callbackAddress(URI.create(this.callbackAddress))
                 .transferType(transferType)
                 .build();
