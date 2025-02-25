@@ -125,7 +125,11 @@ public class EdpsService {
      * @param edpsJobDto the job DTO containing job details.
      */
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
-        var contractId = "contractId"; // todo: pass contractId
+        var contractId = edpsJobDto.getContractId();
+        var transferProcess = this.edrService.getCurrentTransferProcess(contractId);
+        var transferProcessId = transferProcess.getId();
+        var participantId = ""; // TODO: is this needed?
+
         final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
         final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
@@ -135,7 +139,7 @@ public class EdpsService {
                 .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
-        this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress);
+        this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress, transferProcessId, participantId, contractId);
     }
 
     /**
@@ -147,10 +151,14 @@ public class EdpsService {
      */
     public void fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
         this.logger.info(String.format("Fetching EDPS Job Result ZIP for asset %s for job %s...", assetId, jobId));
-        final var contractId = "contractId"; // todo: pass contractId
+        var contractId = edpResultRequestDto.contractId();
         final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
         var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
+        // TODO: Überlegung: Wir müssen nur aufpassen, dass der trnsfer process dann nicht terminiert, vielleicht sollten wir für jeden transfer einen eigenen transfer process spawnen, ist halt async
+        var transferProcess = this.edrService.getCurrentTransferProcess(contractId);
+        var transferProcessId = transferProcess.getId();
+        var participantId = ""; // TODO: is this needed? what is the participantId?
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
@@ -163,7 +171,7 @@ public class EdpsService {
                 .baseUrl(edpResultRequestDto.destinationAddress())
                 .build();
 
-        this.dataplaneService.start(sourceAddress, destinationAddress);
+        this.dataplaneService.start(sourceAddress, destinationAddress, transferProcessId, participantId, contractId);
     }
 
 

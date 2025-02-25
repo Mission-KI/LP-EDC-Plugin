@@ -74,6 +74,7 @@ public class EdpsController implements EdpsInterface {
         var edpsJobDto = mapper.convertValue(edpsJobResponseDto, EdpsJobDto.class);
         edpsJobDto.setAssetId(assetId);
         edpsJobDto.setDetails("Posting analysis data to EDPS initiated. " + CALLBACK_INFO);
+        edpsJobDto.setContractId(edpsCreateJobRequestDto.contractId());
 
         this.assetHelperService.persist(assetId, AssetHelperService.EDPS_JOB_ID_KEY, edpsJobDto.getJobId());
         this.edpsService.sendAnalysisData(edpsJobDto);

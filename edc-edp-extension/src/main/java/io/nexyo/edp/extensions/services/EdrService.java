@@ -57,7 +57,7 @@ public class EdrService {
      * @param contractId the contract ID.
      * @return the current transfer process.
      */
-    private TransferProcess getCurrentTransferProcess(String contractId) {
+    public TransferProcess getCurrentTransferProcess(String contractId) {
         var contractAgreement = this.contractAgreementService.findById(contractId);
         if (contractAgreement == null) {
             throw new EdpException("Contract agreement not found for contract ID: " + contractId);
