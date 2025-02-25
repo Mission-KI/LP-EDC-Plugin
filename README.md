@@ -1,13 +1,93 @@
 # EDC - EDP Extension
 
+This documentation describes the EDP plugin, a EDC (Eclipse Dataspace Component) extension for interacting with Enhanced Dataset Profile Service (EDPS) and Data Space Search Engine (Daseen). The plugin facilitates creating, managing, and publishing Enhanced Dataset Profiles (EDPs) within a data space ecosystem.
 
-To extend the EDC with the EDPS functionality, this extension provides the following features:
-- Establish a contract to an EDPS
-- Create an EDPS job to enhance an asset
-- Retrieve the enhanced asset from EDPS
-- Exposes endpoints to retrieve EDPS job information
-- Create a result asset in EDC with the enhanced data
-- Publish the result asset to Daseen
+## System Architecture Overview
+
+![System Architecture](resources/docs/overview.png)
+
+The above diagram illustrates the overall system architecture showing how the Data Holder connects with EDPS and Daseen services through EDC contracts and data flows.
+
+## Introduction
+
+The EDP Plugin extends the standard EDC connector with capabilities to create, analyze, and publish Enhanced Dataset Profiles (EDPs). This plugin provides a bridge between data assets in an EDC connector and services like EDPS (Enhanced Dataset Profile Service) and Daseen (Data Space Search Engine).
+
+### Key Components
+
+1. **Data Holder**: Organization that owns data assets and uses the EDC connector with the EDP Plugin
+2. **EDPS (Enhanced Dataset Profile Service)**: Service that analyzes data and generates enhanced dataset profiles
+3. **Daseen (Data Space Search Engine)**: Centralized search engine where EDPs are published and made discoverable
+4. **EDP Plugin**: Custom plugin that integrates EDPS and Daseen functionalities into the EDC
+
+## System Setup
+
+The setup consists of the following components:
+
+1. **Data Holder**:
+   - Standard EDC connector with control plane and data plane
+   - EDP Plugin installed and configured
+   - Plugin REST API for managing EDP-related operations
+
+2. **EDC Service Providers**:
+   - EDPS service with standard EDC connector (control plane and data plane)
+   - Daseen service with standard EDC connector (control plane and data plane)
+
+3. **Service Contracts**:
+   - HTTP pull contracts between Data Holder and service providers
+   - Contracts serve as proxies to the actual service APIs
+
+## Data Flow
+
+There are two primary ways to use the system:
+
+1. **Direct Service Access**:
+   - Data Holder extracts endpoint data addresses (EDR) from the EDC transfer process
+   - Uses these endpoints to access EDPS or Daseen service APIs directly
+   - Suitable for providing local files to the services or integrate it with other systems
+
+2. **EDP Plugin-Managed Flow**:
+   - Use the EDP plugin to manage assets directly connected to the EDC
+   - Data flows in the data plane layer at all the time
+   - All result assets are managed inside the EDC connector
+   - Provides seamless integration with existing EDC assets
+
+## Workflow Overview
+
+### Prerequisite
+
+To use EDPS and Daseen, the data holder must establish separate contract agreements with each service through the EDC.
+
+### EDPS Workflow
+
+1. Data Holder creates an analysis job for a specific asset
+2. Input data is uploaded to EDPS
+3. EDPS processes the data and generates an enhanced dataset profile
+4. Data Holder checks job status and retrieves results when complete
+5. Data is stored in the data storage of the data holder and a EDP asset is created
+
+### Daseen Workflow
+
+1. Data Holder creates a resource entry in Daseen
+2. EDP data is uploaded to Daseen
+3. Daseen indexes the EDP for search and discovery
+4. Data Holder can delete the resource when needed
+
+## Service Actions
+
+The following table describes the main actions available in the system:
+
+| Action | Description | Plugin Call | Service API Call |
+|--------|-------------|------------|------------------|
+| **EDPS Actions** |
+| Create analysis job | Initiates a new analysis job for dataset profiling | `POST /edp/edps/{assetId}/jobs` | `POST /v1/dataspace/analysisjob` |
+| Upload input data | Submits data to be analyzed by EDPS | Handled internally by plugin when creating a job | `POST /v1/dataspace/analysisjob/{job_id}/data/file` |
+| Get status | Checks the status of an analysis job | `GET /edp/edps/{assetId}/jobs/{jobId}/status` | `GET /v1/dataspace/analysisjob/{job_id}/status` |
+| Get result data | Retrieves the enhanced dataset profile | `POST /edp/edps/{assetId}/jobs/{jobId}/result` | `GET /v1/dataspace/analysisjob/{job_id}/result` |
+| **Daseen Actions** |
+| Create EDP resource | Creates a new resource entry in Daseen | `POST /edp/daseen/{edpAssetId}` | `POST /connector/edp/` |
+| Upload EDP data | Uploads EDP data to Daseen | `PUT /edp/daseen/{edpAssetId}` | `PUT /connector/edp/{id}/` |
+| Delete EDP resource | Removes an EDP from Daseen | `DELETE /edp/daseen/{edpAssetId}` | `DELETE /connector/edp/{id}/` |
+
 
 ## Requirements
 - Java 17 (17.0.8+7)
