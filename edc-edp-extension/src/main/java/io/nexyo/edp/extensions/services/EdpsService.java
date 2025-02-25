@@ -1,7 +1,6 @@
 package io.nexyo.edp.extensions.services;
 
 
-import com.apicatalog.jsonld.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +8,6 @@ import io.nexyo.edp.extensions.dtos.external.EdpsJobResponseDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsJobDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import io.nexyo.edp.extensions.exceptions.EdpException;
-import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import io.nexyo.edp.extensions.utils.MockUtils;
 import jakarta.json.bind.JsonbBuilder;
@@ -29,7 +27,6 @@ public class EdpsService {
 
     private final Monitor logger;
     private final Client httpClient = ClientBuilder.newClient();
-    private String edpsBaseUrl;
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
     private final EdrService edrService;
@@ -44,26 +41,11 @@ public class EdpsService {
      */
     public EdpsService(DataplaneService dataplaneService, EdrService edrService) {
         this.logger = LoggingUtils.getLogger();
-        initRoutes();
-
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.dataplaneService = dataplaneService;
         this.edrService = edrService;
     }
 
-    /**
-     * Initializes API routes by reading configuration properties.
-     * Throws an exception if the required URLs are not configured.
-     */
-    private void initRoutes() {
-        final String edpsApiUrlKey = "edp.edps.api";
-
-        final var confBaseUrl = ConfigurationUtils.readStringProperty(edpsApiUrlKey, "url");
-        if (StringUtils.isBlank(confBaseUrl)) {
-            throw new EdpException("EDPS API URL is not configured");
-        }
-        this.edpsBaseUrl = confBaseUrl;
-    }
 
     /**
      * Creates a new EDPS job for the specified asset ID.
@@ -74,8 +56,8 @@ public class EdpsService {
      */
     public EdpsJobResponseDto createEdpsJob(String assetId, String contractId) {
         this.logger.info(String.format("Creating EDP job for %s...", assetId));
-        var edpsBaseUrlFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
-        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+        final var edpsBaseUrlFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
         var jsonb = JsonbBuilder.create();
         var requestBody = MockUtils.createRequestBody(assetId);
@@ -114,8 +96,8 @@ public class EdpsService {
         this.logger.info(String.format("Fetching EDPS Job status for job %s...", jobId));
 
         var contractId = "contractId"; // todo: get from edps job
-        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
-        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+        final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
         var apiResponse = this.httpClient.target(String.format("%s/v1/dataspace/analysisjob/%s/status", edpsBaseUrl, jobId))
                 .request(MediaType.APPLICATION_JSON)
@@ -144,13 +126,13 @@ public class EdpsService {
      */
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         var contractId = "contractId"; // todo: pass contractId
-        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
-        var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+        final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
                 .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
-                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", this.edpsBaseUrl, edpsJobDto.getJobId()))
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
         this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress);
@@ -165,14 +147,14 @@ public class EdpsService {
      */
     public void fetchEdpsJobResult(String assetId, String jobId, EdpsResultRequestDto edpResultRequestDto) {
         this.logger.info(String.format("Fetching EDPS Job Result ZIP for asset %s for job %s...", assetId, jobId));
-        var contractId = "contractId"; // todo: pass contractId
-        edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        final var contractId = "contractId"; // todo: pass contractId
+        final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
         var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
 
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
-                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/result", this.edpsBaseUrl, jobId))
+                .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/result", edpsBaseUrl, jobId))
                 .build();
 
         var destinationAddress = HttpDataAddress.Builder.newInstance()
