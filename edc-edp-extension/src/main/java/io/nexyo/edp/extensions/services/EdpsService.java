@@ -135,7 +135,7 @@ public class EdpsService {
 
         var currentTransferProcess = transferProcesses.map(it -> it.stream()
                         .filter(tp -> tp.getState () == 1) // todo: check if this is the correct state
-                        .max(Comparator.comparing(TransferProcess::getStateTimestamp))
+                        .min(Comparator.comparing(TransferProcess::getStateTimestamp))
                         .orElse(null))
                 .orElse(null);
 
