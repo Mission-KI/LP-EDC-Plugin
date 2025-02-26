@@ -25,35 +25,22 @@ public class DaseenService {
 
     private final Monitor logger;
     private final Client httpClient = ClientBuilder.newClient();
-    private String daseenBaseUrl;
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
+    private final EdrService edrService;
 
     /**
      * Constructor for the DaseenService.
      *
      * @param dataplaneService the dataplane service
      */
-    public DaseenService(DataplaneService dataplaneService) {
+    public DaseenService(DataplaneService dataplaneService, EdrService edrService) {
         this.logger = LoggingUtils.getLogger();
-        initRoutes();
-
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.dataplaneService = dataplaneService;
+        this.edrService = edrService;
     }
 
-    /**
-     * Initializes the routes.
-     */
-    private void initRoutes() {
-        final String daseenApiUrlKey = "edp.daseen.api";
-
-        final var confDaseenBaseUrl = ConfigurationUtils.readStringProperty(daseenApiUrlKey, "url");
-        if (StringUtils.isBlank(confDaseenBaseUrl)) {
-            throw new EdpException("Daseen API URL is not configured");
-        }
-        this.daseenBaseUrl = confDaseenBaseUrl;
-    }
 
     /**
      * Creates a Daseen resource.
@@ -88,9 +75,15 @@ public class DaseenService {
      * @param assetId the asset ID to be published.
      */
     public void publishToDaseen(String assetId, String daseenResourceId) {
+        // todo: pass contractID
+        final var edpsBaseUrlFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
+        final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
+
+
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
                 .method(HttpMethod.POST)
+                // todo: add header
                 .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenResourceId))
                 .build();
 

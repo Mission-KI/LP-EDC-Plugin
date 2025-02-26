@@ -9,7 +9,7 @@
   },
   "dataAddress": {
     "type": "HttpData",
-    "name": "Data.csv",
+    "name": "data.csv",
     "baseUrl": "http://localhost:8080/data.csv",
     "proxyPath": "true"
   }
