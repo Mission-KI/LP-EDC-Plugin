@@ -94,7 +94,8 @@ public class DaseenService {
                 .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenResourceId))
                 .build();
 
-        this.dataplaneService.start(assetId, destinationAddress);
+        // todo: add missing args
+        //this.dataplaneService.start(assetId, destinationAddress, participantId, aggrementId);
     }
 
     /**
@@ -110,7 +111,8 @@ public class DaseenService {
                 .baseUrl(String.format("%s/connector/edp/%s", this.daseenBaseUrl, daseenResourceId))
                 .build();
 
-        this.dataplaneService.start(assetId, destinationAddress);
+        // todo: add missing args
+        //this.dataplaneService.start(assetId, destinationAddress);
     }
 
     /**

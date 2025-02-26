@@ -5,6 +5,7 @@ import io.nexyo.edp.extensions.exceptions.EdpException;
 import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
+import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcessStates;
 import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.spi.query.QuerySpec;
 
@@ -69,7 +70,7 @@ public class EdrService {
         var transferProcesses = this.transferProcessService.search(querySpec);
 
         var currentTransferProcess = transferProcesses.map(it -> it.stream()
-                        .filter(tp -> tp.getState() == 1) // todo: check if this is the correct state
+                        .filter(tp -> tp.getState() >= TransferProcessStates.STARTED.code()) // todo: improve condition (now process needs to be at least in STARTED state and could be TERMINATED)
                         .min(Comparator.comparing(TransferProcess::getStateTimestamp))
                         .orElse(null))
                 .orElse(null);
