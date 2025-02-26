@@ -25,7 +25,7 @@ JOB_RESPONSE=$(curl -d "{\"contractId\": \"$CONTRACT_ID\"}" \
 echo "$JOB_RESPONSE" | jq
 
 # Todo: Check extraction of job ID
-JOB_ID=$(echo "$JOB_RESPONSE" | jq -r '.id')
+JOB_ID=$(echo "$JOB_RESPONSE" | jq -r '.jobId')
 
 echo -e "${GREEN}Creating result asset for job $JOB_ID...${NC}\n"
 

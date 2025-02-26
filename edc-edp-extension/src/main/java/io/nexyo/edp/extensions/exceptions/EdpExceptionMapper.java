@@ -16,7 +16,7 @@ public class EdpExceptionMapper implements ExceptionMapper<EdpException> {
      */
     @Override
     public Response toResponse(EdpException exception) {
-        return Response.status(404)
+        return Response.status(500)
                 .entity("{\"error\": \"" + exception.getMessage() + "\"}")
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .build();

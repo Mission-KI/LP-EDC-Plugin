@@ -2,6 +2,7 @@ package io.nexyo.edp.extensions.services;
 
 import io.nexyo.edp.extensions.controllers.DaseenController;
 import io.nexyo.edp.extensions.controllers.EdpsController;
+import io.nexyo.edp.extensions.exceptions.EdpExceptionMapper;
 import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
@@ -80,6 +81,7 @@ public class EdpServiceExtension implements ServiceExtension {
 
         webService.registerResource(edpsController);
         webService.registerResource(daseenController);
+        webService.registerResource(new EdpExceptionMapper());
     }
 
     @Override
