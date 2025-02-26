@@ -50,6 +50,7 @@ dependencies {
 
     implementation(libs.jakarta.json.api)
     implementation(libs.yasson)
+    implementation(project(":edc-seed-vault"))
 }
 
 application {

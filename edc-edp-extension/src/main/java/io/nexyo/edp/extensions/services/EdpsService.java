@@ -30,7 +30,7 @@ public class EdpsService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final DataplaneService dataplaneService;
     private final EdrService edrService;
-    private static final String EDR_PROPERTY_EDPS_BASE_URL_KEY = "https://w3id.org/edc/v0.0.1/ns/edpsBaseUrl";
+    private static final String EDR_PROPERTY_EDPS_BASE_URL_KEY = "https://w3id.org/edc/v0.0.1/ns/endpoint";
     private static final String EDR_PROPERTY_EDPS_AUTH_KEY = "https://w3id.org/edc/v0.0.1/ns/authorization";
 
 
@@ -127,8 +127,7 @@ public class EdpsService {
     public void sendAnalysisData(EdpsJobDto edpsJobDto) {
         var contractId = edpsJobDto.getContractId();
         var transferProcess = this.edrService.getCurrentTransferProcess(contractId);
-        var transferProcessId = transferProcess.getId();
-        var participantId = ""; // TODO: is this needed?
+        var participantId = this.edrService.getContractAgreement(contractId).getProviderId();
 
         final var edpsBaseUrl = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_BASE_URL_KEY);
         final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId, EDR_PROPERTY_EDPS_AUTH_KEY);
@@ -139,7 +138,7 @@ public class EdpsService {
                 .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/file", edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
-        this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress, transferProcessId, participantId, contractId);
+        this.dataplaneService.start(edpsJobDto.getAssetId(), destinationAddress, transferProcess.getId(), participantId, contractId);
     }
 
     /**

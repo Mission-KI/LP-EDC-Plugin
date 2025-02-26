@@ -2,6 +2,7 @@ package io.nexyo.edp.extensions.services;
 
 import com.apicatalog.jsonld.StringUtils;
 import io.nexyo.edp.extensions.exceptions.EdpException;
+import org.eclipse.edc.connector.controlplane.contract.spi.types.agreement.ContractAgreement;
 import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
@@ -36,20 +37,20 @@ public class EdrService {
 
         var endpointDataReference = this.edrStore.resolveByTransferProcess(transferProcess.getId());
         if (endpointDataReference.failed()) {
-            throw new EdpException("Endpoint Data Reference not found for transfer process ID: " + transferProcess.getId());
+            throw new EdpException("Endpoint Data Reference not found for transfer process. The error messages are: " +
+                    String.join("; ", endpointDataReference.getFailureMessages()) );
         }
 
         var edrProperties = endpointDataReference.getContent()
                 .getProperties();
-
-        var edpsBaseUrlFromContract = edrProperties.getOrDefault(key, "")
+        var edrPropertyValue = edrProperties.getOrDefault(key, "")
                 .toString();
 
-        if (StringUtils.isBlank(edpsBaseUrlFromContract)) {
-            throw new EdpException("Could not extract EDT property with key " + key);
+        if (StringUtils.isBlank(edrPropertyValue)) {
+            throw new EdpException("Could not extract EDR property for key " + key);
         }
 
-        return edpsBaseUrlFromContract;
+        return edrPropertyValue;
     }
 
     /**
@@ -70,7 +71,7 @@ public class EdrService {
         var transferProcesses = this.transferProcessService.search(querySpec);
 
         var currentTransferProcess = transferProcesses.map(it -> it.stream()
-                        .filter(tp -> tp.getState() >= TransferProcessStates.STARTED.code()) // todo: improve condition (now process needs to be at least in STARTED state and could be TERMINATED)
+                        .filter(tp -> tp.getState() == TransferProcessStates.STARTED.code())
                         .min(Comparator.comparing(TransferProcess::getStateTimestamp))
                         .orElse(null))
                 .orElse(null);
@@ -80,5 +81,20 @@ public class EdrService {
         }
 
         return currentTransferProcess;
+    }
+
+
+    /**
+     * Retrieves the contract agreement for a given contract ID.
+     * @param contractId the contract ID.
+     * @return the contract agreement.
+     */
+    public ContractAgreement getContractAgreement(String contractId) {
+        var contractAgreement = this.contractAgreementService.findById(contractId);
+
+        if (contractAgreement == null) {
+            throw new EdpException("Contract agreement not found for contract ID: " + contractId);
+        }
+        return contractAgreement;
     }
 }

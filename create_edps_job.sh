@@ -4,7 +4,11 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-CONTRACT_ID="a5a3c863-ed25-42a7-9ab4-fde8074b9e74"
+#CONTRACT_ID="<CONTRACT_ID>"
+if [[ -z "$CONTRACT_ID" ]]; then
+    echo "Error: CONTRACT_ID is not defined. Please set it before running the script."
+    exit 1
+fi
 
 echo -e "${GREEN}Creating source asset for EDPS...${NC}\n"
 curl -d @resources/requests/create-asset.json \
@@ -13,6 +17,7 @@ curl -d @resources/requests/create-asset.json \
 
 
 echo -e "${GREEN}Creating EDPS job...${NC}\n"
+echo "CONTRACT_ID is: $CONTRACT_ID"
 JOB_RESPONSE=$(curl -d "{\"contractId\": \"$CONTRACT_ID\"}" \
    -H 'content-type: application/json' http://localhost:19191/api/edp/edps/assetId1/jobs \
    -s | jq
@@ -24,7 +29,6 @@ JOB_ID=$(echo "$JOB_RESPONSE" | jq -r '.id')
 
 echo -e "${GREEN}Creating result asset for job $JOB_ID...${NC}\n"
 
-exit 0
 
 # todo: add back
 #curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/$JOB_ID/result \
@@ -37,3 +41,5 @@ exit 0
 #
 #
 #echo -e "\n${GREEN}Done!${NC}"
+
+exit 0
