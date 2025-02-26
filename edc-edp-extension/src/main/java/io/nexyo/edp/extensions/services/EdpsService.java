@@ -156,8 +156,7 @@ public class EdpsService {
 
         // TODO: Überlegung: Wir müssen nur aufpassen, dass der trnsfer process dann nicht terminiert, vielleicht sollten wir für jeden transfer einen eigenen transfer process spawnen, ist halt async
         var transferProcess = this.edrService.getCurrentTransferProcess(contractId);
-        var transferProcessId = transferProcess.getId();
-        var participantId = ""; // TODO: is this needed? what is the participantId?
+        var participantId = this.edrService.getContractAgreement(contractId).getProviderId();
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
@@ -170,7 +169,7 @@ public class EdpsService {
                 .baseUrl(edpResultRequestDto.destinationAddress())
                 .build();
 
-        this.dataplaneService.start(sourceAddress, destinationAddress, transferProcessId, participantId, contractId);
+        this.dataplaneService.start(sourceAddress, destinationAddress, transferProcess.getId(), participantId, contractId);
     }
 
 
