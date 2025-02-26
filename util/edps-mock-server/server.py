@@ -294,98 +294,49 @@ class CustomHandler(SimpleHTTPRequestHandler):
         result_file_path = os.path.join(DATA_DIR, result_file_name)
 
         try:
-            content_length = int(self.headers.get("Content-Length", 0))
-            logging.info(f"Receiving file upload with content length: {content_length} bytes")
+            # Send response headers first to prevent timeout
+            self.send_response(201)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
             
-            # Read data in chunks to avoid memory issues with large files
-            bytes_remaining = content_length
-            chunk_size = 8192  # 8KB chunks
-            bytes_written = 0
+            # Read the entire input at once
+            data = self.rfile.read()
+            bytes_written = len(data)
+            logging.info(f"Read {bytes_written} bytes from input")
             
+            # Write the data to file
             with open(result_file_path, "wb") as output_file:
-                while bytes_remaining > 0:
-                    chunk_size = min(chunk_size, bytes_remaining)
-                    try:
-                        chunk = self.rfile.read(chunk_size)
-                        if not chunk:
-                            logging.warning("Received empty chunk, breaking out of read loop")
-                            break  # Connection closed prematurely
-                        chunk_len = len(chunk)
-                        output_file.write(chunk)
-                        bytes_written += chunk_len
-                        bytes_remaining -= chunk_len
-                        if bytes_written % (1024 * 1024) == 0:  # Log every 1MB
-                            logging.info(f"Written {bytes_written} bytes so far")
-                    except (BrokenPipeError, ConnectionResetError, socket.error) as e:
-                        logging.error(f"Connection error while reading upload data: {str(e)}")
-                        break
-                
-                # Make sure data is flushed to disk
+                output_file.write(data)
                 output_file.flush()
                 os.fsync(output_file.fileno())
             
-            logging.info(f"File upload complete. Written {bytes_written} of {content_length} bytes to {result_file_path}")
-            
-            # Check if the file was created and has content
-            if os.path.exists(result_file_path):
-                actual_size = os.path.getsize(result_file_path)
-                logging.info(f"File size on disk: {actual_size} bytes")
-                if actual_size == 0:
-                    logging.warning("File is empty (0 bytes) on disk!")
-                    # Create a dummy file with some content if it's empty
-                    with open(result_file_path, "w") as f:
-                        f.write("dummy,data\n1,2\n")
-                        f.flush()
-                        os.fsync(f.fileno())
-                    logging.info("Added dummy content to empty file")
-            else:
-                logging.error(f"File {result_file_path} does not exist after write operation!")
+            logging.info(f"File upload complete. Written {bytes_written} bytes to {result_file_path}")
 
-            # Only process if we received some data
+            # Process the file if we received data
             if bytes_written > 0:
                 self.process_edps(result_file_name)
-                
-                try:
-                    self.send_response(201)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    response = {
-                        "status": "success",
-                        "message": "File uploaded and processed successfully."
-                    }
-                    self.wfile.write(json.dumps(response).encode())
-                    self.wfile.flush()
-                except (BrokenPipeError, ConnectionResetError, socket.error) as e:
-                    logging.error(f"Connection error while sending upload response: {str(e)}")
+                response = {
+                    "status": "success",
+                    "message": "File uploaded and processed successfully."
+                }
             else:
-                logging.warning(f"No data received for job {job_id}. Expected {content_length} bytes but received {bytes_written} bytes.")
-                try:
-                    self.send_response(400)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    response = {
-                        "status": "error",
-                        "message": "No data received."
-                    }
-                    self.wfile.write(json.dumps(response).encode())
-                except (BrokenPipeError, ConnectionResetError, socket.error) as e:
-                    logging.error(f"Connection error while sending error response: {str(e)}")
-        except (BrokenPipeError, ConnectionResetError, socket.error) as e:
-            logging.error(f"Connection error during file upload: {str(e)}")
-            # Connection already closed, no need to send response
-        except Exception as e:
-            logging.error(f"Error processing file upload: {str(e)}")
-            try:
-                self.send_response(500)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
                 response = {
                     "status": "error",
-                    "message": f"Error processing file: {str(e)}"
+                    "message": "No data received."
+                }
+            
+            self.wfile.write(json.dumps(response).encode())
+            self.wfile.flush()
+
+        except Exception as e:
+            logging.error(f"Error during file upload: {str(e)}")
+            if not self.wfile.closed:
+                response = {
+                    "status": "error",
+                    "message": str(e)
                 }
                 self.wfile.write(json.dumps(response).encode())
-            except (BrokenPipeError, ConnectionResetError, socket.error):
-                logging.error("Could not send error response - connection already closed")
+                self.wfile.flush()
 
     def process_edps(self, result_file_name):
         """Process the CSV file into a .zip file."""
