@@ -19,7 +19,8 @@ import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.web.spi.WebService;
 
 /**
- * The EdpServiceExtension class is responsible for initializing the EDP service extension.
+ * The EdpServiceExtension class is responsible for initializing the EDP service
+ * extension.
  */
 public class EdpServiceExtension implements ServiceExtension {
 
@@ -57,13 +58,10 @@ public class EdpServiceExtension implements ServiceExtension {
 
     private DaseenService daseenService;
 
-
     @Override
     public String name() {
         return EXTENSION_NAME;
     }
-
-
 
     @Override
     public void initialize(ServiceExtensionContext context) {

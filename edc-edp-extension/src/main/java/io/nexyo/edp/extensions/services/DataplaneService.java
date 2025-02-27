@@ -38,11 +38,13 @@ public class DataplaneService {
     /**
      * Constructs a new DataplaneService with the given dependencies.
      *
-     * @param dataPlaneSelectorService the service for selecting data plane instances.
+     * @param dataPlaneSelectorService the service for selecting data plane
+     *                                 instances.
      * @param clientFactory            the factory for creating data plane clients.
      * @param assetIndexer             the indexer for resolving asset addresses.
      */
-    public DataplaneService(DataPlaneSelectorService dataPlaneSelectorService, DataPlaneClientFactory clientFactory, AssetIndex assetIndexer) {
+    public DataplaneService(DataPlaneSelectorService dataPlaneSelectorService, DataPlaneClientFactory clientFactory,
+            AssetIndex assetIndexer) {
         this.selectorService = dataPlaneSelectorService;
         this.clientFactory = clientFactory;
         this.assetIndexer = assetIndexer;
@@ -74,7 +76,8 @@ public class DataplaneService {
      * @param destinationAddress the destination data address.
      * @throws EdpException if the source address for the asset is not found.
      */
-    public void start(String assetId, DataAddress destinationAddress, String processId, String participantId, String agreementId) {
+    public void start(String assetId, DataAddress destinationAddress, String processId, String participantId,
+            String agreementId) {
         var sourceAddress = this.assetIndexer.resolveForAsset(assetId);
 
         if (sourceAddress == null) {
@@ -85,15 +88,15 @@ public class DataplaneService {
         var dataplaneInstance = getDataplane(sourceAddress);
         this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
-        var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress, processId, participantId, agreementId);
+        var dataFlowRequest = createDataFlowRequest(assetId, sourceAddress, destinationAddress, processId,
+                participantId, agreementId);
 
         var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)
                 .map(it -> DataFlowResponse.Builder.newInstance()
                         .dataAddress(it.getDataAddress())
                         .dataPlaneId(dataplaneInstance.getId())
-                        .build()
-                );
+                        .build());
         this.logger.info("Data flow response is: " + result);
     }
 
@@ -103,31 +106,34 @@ public class DataplaneService {
      * @param sourceAddress      the source data address.
      * @param destinationAddress the destination data address.
      */
-    public void start(DataAddress sourceAddress, DataAddress destinationAddress, String processId, String participantId, String agreementId) {
+    public void start(DataAddress sourceAddress, DataAddress destinationAddress, String processId, String participantId,
+            String agreementId) {
         var dataplaneInstance = getDataplane(sourceAddress);
         this.logger.info("Data flow starting with dataplane id: " + dataplaneInstance.getId());
 
-        var dataFlowRequest = createDataFlowRequest(null, sourceAddress, destinationAddress, processId, participantId, agreementId);
+        var dataFlowRequest = createDataFlowRequest(null, sourceAddress, destinationAddress, processId, participantId,
+                agreementId);
 
         var result = clientFactory.createClient(dataplaneInstance)
                 .start(dataFlowRequest)
                 .map(it -> DataFlowResponse.Builder.newInstance()
                         .dataAddress(it.getDataAddress())
                         .dataPlaneId(dataplaneInstance.getId())
-                        .build()
-                );
+                        .build());
         this.logger.info("Data flow response is: " + result);
     }
 
     /**
      * Creates a data flow request for transferring data.
      *
-     * @param assetId                the ID of the asset being transferred (optional).
+     * @param assetId                the ID of the asset being transferred
+     *                               (optional).
      * @param sourceDataAddress      the source data address.
      * @param destinationDataAddress the destination data address.
      * @return a {@link DataFlowStartMessage} representing the request.
      */
-    private DataFlowStartMessage createDataFlowRequest(String assetId, DataAddress sourceDataAddress, DataAddress destinationDataAddress, String processId, String participantId, String agreementId) {
+    private DataFlowStartMessage createDataFlowRequest(String assetId, DataAddress sourceDataAddress,
+            DataAddress destinationDataAddress, String processId, String participantId, String agreementId) {
         TransferType transferType = new TransferType("HttpData", FlowType.PUSH);
 
         return DataFlowStartMessage.Builder.newInstance()

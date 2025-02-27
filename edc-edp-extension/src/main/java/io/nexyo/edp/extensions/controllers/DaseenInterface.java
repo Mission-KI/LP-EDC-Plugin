@@ -1,5 +1,6 @@
 package io.nexyo.edp.extensions.controllers;
 
+import io.nexyo.edp.extensions.dtos.internal.DaseenCreateEntryRequestDto;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -22,7 +23,7 @@ public interface DaseenInterface {
      */
     @POST
     @Path("/{assetId}")
-    Response create(@PathParam("assetId") String assetId);
+    Response create(@PathParam("assetId") String assetId, DaseenCreateEntryRequestDto daseenCreateEntryRequestDto);
 
     /**
      * Updates a Daseen resource.
