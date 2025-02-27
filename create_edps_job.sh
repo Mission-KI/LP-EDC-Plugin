@@ -29,17 +29,20 @@ JOB_ID=$(echo "$JOB_RESPONSE" | jq -r '.jobId')
 
 echo -e "${GREEN}Creating result asset for job $JOB_ID...${NC}\n"
 
+curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/$JOB_ID/result \
+ -H 'content-type: application/json' \
+ -d @resources/requests/fetch-edps-result.json
 
-# todo: add back
-#curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/$JOB_ID/result \
-#  -H 'content-type: application/json' \
-#  -d @resources/requests/fetch-edps-result.json
-#
-#
-#echo -e "${GREEN}Publishing to Daseen...${NC}\n"
-#curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
-#
-#
-#echo -e "\n${GREEN}Done!${NC}"
+curl -d @resources/requests/create-result-asset.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
+  -s | jq
+
+echo -e "${GREEN}Publishing to Daseen...${NC}\n"
+curl -d "{\"contractId\": \"$CONTRACT_ID\"}" \
+  -H 'content-type: application/json' http://localhost:19191/api/edp/daseen/resultAssetId1 \
+  -s | jq
+
+
+echo -e "\n${GREEN}Done!${NC}"
 
 exit 0

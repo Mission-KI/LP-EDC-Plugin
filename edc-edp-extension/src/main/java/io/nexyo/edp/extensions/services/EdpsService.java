@@ -166,12 +166,13 @@ public class EdpsService {
 
         var sourceAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PULL.toString())
+                .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
                 .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/result", edpsBaseUrl, edpsJobDto.getJobId()))
                 .build();
 
         var destinationAddress = HttpDataAddress.Builder.newInstance()
                 .type(FlowType.PUSH.toString())
-                .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
+                // .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
                 .baseUrl(edpResultRequestDto.destinationAddress())
                 .build();
 

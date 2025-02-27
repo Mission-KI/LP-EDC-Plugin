@@ -24,11 +24,13 @@ The EDP Plugin extends the standard EDC connector with capabilities to create, a
 The setup consists of the following components:
 
 1. **Data Holder**:
+
    - Standard EDC connector with control plane and data plane
    - EDP Plugin installed and configured
    - Plugin REST API for managing EDP-related operations
 
 2. **EDC Service Providers**:
+
    - EDPS service with standard EDC connector (control plane and data plane)
    - Daseen service with standard EDC connector (control plane and data plane)
 
@@ -41,6 +43,7 @@ The setup consists of the following components:
 There are two primary ways to use the system:
 
 1. **Direct Service Access**:
+
    - Data Holder extracts endpoint data addresses (EDR) from the EDC transfer process
    - Uses these endpoints to access EDPS or Daseen service APIs directly
    - Suitable for providing local files to the services or integrate it with other systems
@@ -76,39 +79,40 @@ To use EDPS and Daseen, the data holder must establish separate contract agreeme
 
 The following table describes the main actions available in the system:
 
-| Action | Description | Plugin Call | Service API Call |
-|--------|-------------|------------|------------------|
-| **EDPS Actions** |
-| Create analysis job | Initiates a new analysis job for dataset profiling | `POST /edp/edps/{assetId}/jobs` | `POST /v1/dataspace/analysisjob` |
-| Upload input data | Submits data to be analyzed by EDPS | Handled internally by plugin when creating a job | `POST /v1/dataspace/analysisjob/{job_id}/data/file` |
-| Get status | Checks the status of an analysis job | `GET /edp/edps/{assetId}/jobs/{jobId}/status` | `GET /v1/dataspace/analysisjob/{job_id}/status` |
-| Get result data | Retrieves the enhanced dataset profile | `POST /edp/edps/{assetId}/jobs/{jobId}/result` | `GET /v1/dataspace/analysisjob/{job_id}/result` |
-| **Daseen Actions** |
-| Create EDP resource | Creates a new resource entry in Daseen | `POST /edp/daseen/{edpAssetId}` | `POST /connector/edp/` |
-| Upload EDP data | Uploads EDP data to Daseen | `PUT /edp/daseen/{edpAssetId}` | `PUT /connector/edp/{id}/` |
-| Delete EDP resource | Removes an EDP from Daseen | `DELETE /edp/daseen/{edpAssetId}` | `DELETE /connector/edp/{id}/` |
-
+| Action              | Description                                        | Plugin Call                                      | Service API Call                                    |
+| ------------------- | -------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------- |
+| **EDPS Actions**    |
+| Create analysis job | Initiates a new analysis job for dataset profiling | `POST /edp/edps/{assetId}/jobs`                  | `POST /v1/dataspace/analysisjob`                    |
+| Upload input data   | Submits data to be analyzed by EDPS                | Handled internally by plugin when creating a job | `POST /v1/dataspace/analysisjob/{job_id}/data/file` |
+| Get status          | Checks the status of an analysis job               | `GET /edp/edps/{assetId}/jobs/{jobId}/status`    | `GET /v1/dataspace/analysisjob/{job_id}/status`     |
+| Get result data     | Retrieves the enhanced dataset profile             | `POST /edp/edps/{assetId}/jobs/{jobId}/result`   | `GET /v1/dataspace/analysisjob/{job_id}/result`     |
+| **Daseen Actions**  |
+| Create EDP resource | Creates a new resource entry in Daseen             | `POST /edp/daseen/{edpAssetId}`                  | `POST /connector/edp/`                              |
+| Upload EDP data     | Uploads EDP data to Daseen                         | `PUT /edp/daseen/{edpAssetId}`                   | `PUT /connector/edp/{id}/`                          |
+| Delete EDP resource | Removes an EDP from Daseen                         | `DELETE /edp/daseen/{edpAssetId}`                | `DELETE /connector/edp/{id}/`                       |
 
 ## Requirements
+
 - Java 17 (17.0.8+7)
 
 ## Project Structure
 
 The project consists of the following modules:
+
 - `edc-edps-extension`: The actual EDC-EDP connector extension
-- utils: 
+- utils:
   - `http-file-server`: contains the http file server to provide the demo data.csv
   - `edps_mock-server`: the mock server for the EDPS and Daseen Api
 
-Note: *To switch between the mock server and the real EDPS and Daseen Api, the `application.properties` in the `edc-edps-extension` module has to be adjusted.
-It is sufficient to change the `edc.edps.url` and `edc.daseen.url` properties to the real endpoint.*
+Note: _To switch between the mock server and the real EDPS and Daseen Api, the `application.properties` in the `edc-edps-extension` module has to be adjusted.
+It is sufficient to change the `edc.edps.url` and `edc.daseen.url` properties to the real endpoint._
 
 ## Documentation
 
 The Api reference for the:
-- Management Api can be found [here](https://github.com/eclipse-edc/Connector/blob/gh-pages/openapi/management-api/3.0.6/management-api.yaml).  
-- Extension Api can be found [here](resources/edc-edps-openapi.yml).
 
+- Management Api can be found [here](https://github.com/eclipse-edc/Connector/blob/gh-pages/openapi/management-api/3.0.6/management-api.yaml).
+- Extension Api can be found [here](resources/edc-edps-openapi.yml).
 
 ## EDP Workflow
 
@@ -136,7 +140,6 @@ java -Dedc.fs.config=resources/configuration/service-provider-configuration.prop
 
 Alternatively, start the `io/nexyo/edp/extensions/Runner.java` in the IDE.
 
-
 ### 2. Start Services
 
 Start the http server with the following command:
@@ -145,7 +148,7 @@ Start the http server with the following command:
 python ./util/http-file-server/server.py
 ```
 
-The file server will be used to provide files referenced by the EDC assets. 
+The file server will be used to provide files referenced by the EDC assets.
 Additionally, the file server acts as the callback address for the dataplane, logging the results of dataplane operations.
 
 Start the mock server for the EDPS and Daseen Api:
@@ -154,7 +157,6 @@ Start the mock server for the EDPS and Daseen Api:
 python ./util/edps-mock-server/server.py
 ```
 
-
 ### Setup Service Provider side
 
 #### 1. Create EDPS Asset
@@ -162,12 +164,12 @@ python ./util/edps-mock-server/server.py
 ```bash
 curl -d @resources/requests/create-edps-asset.json \
   -H 'content-type: application/json' http://localhost:29193/management/v3/assets \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if asset is created:
 
-```bash 
+```bash
 curl -X POST http://localhost:29193/management/v3/assets/request | jq
 ```
 
@@ -176,27 +178,26 @@ curl -X POST http://localhost:29193/management/v3/assets/request | jq
 ```bash
 curl -d @resources/requests/create-policy.json \
   -H 'content-type: application/json' http://localhost:29193/management/v3/policydefinitions \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if policy is created:
 
-```bash 
+```bash
 curl -X POST http://localhost:29193/management/v3/policydefinitions/request | jq
 ```
 
 #### 3. Create Contract Definition
 
-
 ```bash
 curl -d @resources/requests/create-contract-definition.json \
   -H 'content-type: application/json' http://localhost:29193/management/v3/contractdefinitions \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if contract definition is created:
 
-```bash 
+```bash
 curl -X POST http://localhost:29193/management/v3/contractdefinitions/request | jq
 ```
 
@@ -207,7 +208,7 @@ curl -X POST http://localhost:29193/management/v3/contractdefinitions/request | 
 ```bash
 curl -d @resources/requests/fetch-service-provider-catalog.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/catalog/request \
-  -s | jq 
+  -s | jq
 ```
 
 #### 2. Negotiate contract
@@ -217,12 +218,12 @@ Please replace the `{{contract-offer-id}}` placeholder in the `negotiate-edps-co
 ```bash
 curl -d @resources/requests/negotiate-edps-contract.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/contractnegotiations \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if contract negotiation is successfull:
 
-```bash 
+```bash
 curl -X POST http://localhost:29193/management/v3/contractnegotiations/request | jq
 ```
 
@@ -233,12 +234,12 @@ Please replace the `{{contract-id}}` placeholder in the `start-transfer.json` fi
 ```bash
 curl -d @resources/requests/start-transfer.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/transferprocesses \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if transfer process is successfull:
 
-```bash 
+```bash
 curl -X POST http://localhost:19193/management/v3/transferprocesses/request | jq
 ```
 
@@ -246,7 +247,7 @@ curl -X POST http://localhost:19193/management/v3/transferprocesses/request | jq
 
 Please replace the `<transfer-process-id>` placeholder in the request with the id you found in the transfer processes request.
 
-```bash 
+```bash
 curl -X GET http://localhost:19193/management/v3/edrs/<transfer-process-id>/dataaddress | jq
 ```
 
@@ -262,17 +263,18 @@ Use the management Api to create an asset:
 ```bash
 curl -d @resources/requests/create-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
-  -s | jq 
+  -s | jq
 ```
 
 [Optional] Check if asset is created:
 
-```bash 
+```bash
 curl -X POST http://localhost:19193/management/v3/assets/request | jq
 ```
 
-
 ### 2. Create EDPS Job
+
+replace the `{{contract-id}}` placeholder resources/requests/create-edps-job.json with the contract id from the previous steps.
 
 ```bash
 curl -d @resources/requests/create-edps-job.json \
@@ -283,10 +285,10 @@ curl -d @resources/requests/create-edps-job.json \
 Note the `jobId` in the response as it is needed for the next step.
 
 [Optional] Get EDPS job by assetId:
-```bash
-curl http://localhost:19191/api/edp/edps/assetId1/jobs | jq 
-```
 
+```bash
+curl http://localhost:19191/api/edp/edps/assetId1/jobs | jq
+```
 
 [Optional] Get EDPS job status:
 
@@ -301,7 +303,7 @@ Replace the jobId in the request with the jobId from the previous step.
 ```bash
 curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
   -H 'content-type: application/json' \
-  -d @resources/requests/fetch-edps-result.json 
+  -d @resources/requests/fetch-edps-result.json
 ```
 
 ### 4. Create Result Asset
@@ -309,14 +311,19 @@ curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/{jobId}/result \
 ```bash
 curl -d @resources/requests/create-result-asset.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/assets \
-  -s | jq 
+  -s | jq
 ```
-
 
 ### 5. Publish Result to Daseen
 
+Please replace the `{{contract-offer-id}}` placeholder in the `publish-to-daseen-asset.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
+
+Note: This only works if Daseen and EDPS are running on the same endpoint with the same authorization. If this is not the case, you have to set up a new contract agreement for Daseen (analog to setting up the EDPS service asset and contract agreement).
+
 ```bash
-curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+curl -d @resources/requests/publish-to-daseen-asset.json \
+  -H 'content-type: application/json' http://localhost:19191/api/edp/daseen/resultAssetId1 \
+  -s | jq
 ```
 
 [optional] Update Daseen entry
@@ -336,7 +343,6 @@ curl -X DELETE http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
 - Only transfers of type `HttpData` are supported at the moment
 - EDPS and Daseen Api are mocked as the content type of the requests are determined by the Dataplane
 - No error handling for Dataplane operations
-
 
 ## ToDos
 

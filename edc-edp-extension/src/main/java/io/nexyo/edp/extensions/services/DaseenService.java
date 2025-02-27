@@ -64,7 +64,7 @@ public class DaseenService {
                                 .header("Authorization", daseenAuthorizationFromContract)
                                 .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
 
-                if (apiResponse.getStatus() != 201) {
+                if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() < 300)) {
                         this.logger.warning("Failed to create EDP entry in Daseen for asset id: " + assetId
                                         + ". Status was: "
                                         + apiResponse.getStatus());
