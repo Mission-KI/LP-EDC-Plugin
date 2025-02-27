@@ -1,6 +1,5 @@
 package io.nexyo.edp.extensions.controllers;
 
-
 import io.nexyo.edp.extensions.dtos.internal.EdpsCreateJobRequestDto;
 import io.nexyo.edp.extensions.dtos.internal.EdpsResultRequestDto;
 import jakarta.ws.rs.Consumes;
@@ -14,7 +13,8 @@ import jakarta.ws.rs.core.Response;
 
 /**
  * RESTful interface for managing EDPS jobs and their results.
- * Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
+ * Provides endpoints for creating, monitoring, and retrieving results from EDPS
+ * jobs.
  */
 @Path("/edp/edps")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,10 +32,13 @@ public interface EdpsInterface {
     Response getEdpsJob(@PathParam("assetId") String assetId);
 
     /**
-     * Creates a new EDPS job for a specific asset and submits the associated file to EDPS.
+     * Creates a new EDPS job for a specific asset and submits the associated file
+     * to EDPS.
      *
-     * @param assetId The unique identifier of the asset to create a job for
-     * @param edpsCreateJobRequestDto The request payload containing create job parameters
+     * @param assetId                 The unique identifier of the asset to create a
+     *                                job for
+     * @param edpsCreateJobRequestDto The request payload containing create job
+     *                                parameters
      * @return Response containing the details of the created job
      */
     @POST
@@ -52,21 +55,21 @@ public interface EdpsInterface {
     @GET
     @Path("/{assetId}/jobs/{jobId}/status")
     Response getEdpsJobStatus(@PathParam("assetId") String assetId,
-                              @PathParam("jobId") String jobId);
+            @PathParam("jobId") String jobId);
 
     /**
      * Retrieves the result from EDPS and stores the result file in the system.
      *
-     * @param assetId     The unique identifier of the original asset
-     * @param jobId       The unique identifier of the completed job
-     * @param edpsResultRequestDto The request payload containing result processing parameters
+     * @param assetId              The unique identifier of the original asset
+     * @param jobId                The unique identifier of the completed job
+     * @param edpsResultRequestDto The request payload containing result processing
+     *                             parameters
      * @return Response containing the details of the newly created result asset
      */
     @POST
     @Path("/{assetId}/jobs/{jobId}/result")
     Response fetchEdpsJobResult(@PathParam("assetId") String assetId,
-                                @PathParam("jobId") String jobId,
-                                EdpsResultRequestDto edpsResultRequestDto);
-
+            @PathParam("jobId") String jobId,
+            EdpsResultRequestDto edpsResultRequestDto);
 
 }

@@ -13,6 +13,8 @@ import org.eclipse.edc.spi.system.configuration.Config;
 public class ConfigurationUtils {
 
     private static Config config;
+    public static final String EDR_PROPERTY_EDPS_BASE_URL_KEY = "https://w3id.org/edc/v0.0.1/ns/endpoint";
+    public static final String EDR_PROPERTY_EDPS_AUTH_KEY = "https://w3id.org/edc/v0.0.1/ns/authorization";
 
     /**
      * Private constructor to prevent instantiation.
@@ -28,8 +30,7 @@ public class ConfigurationUtils {
         var configurationLoader = new ConfigurationLoader(
                 new ServiceLocatorImpl(),
                 EnvironmentVariables.ofDefault(),
-                SystemProperties.ofDefault()
-        );
+                SystemProperties.ofDefault());
 
         var logger = LoggingUtils.getLogger();
         config = configurationLoader.loadConfiguration(logger);
@@ -52,7 +53,7 @@ public class ConfigurationUtils {
      * Reads a string property from the configuration.
      *
      *
-     * @param key the key
+     * @param key          the key
      * @param propertyName the property name
      * @return the property value
      */
@@ -68,4 +69,3 @@ public class ConfigurationUtils {
     }
 
 }
-
