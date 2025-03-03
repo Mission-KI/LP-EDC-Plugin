@@ -4,9 +4,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-#CONTRACT_ID="<CONTRACT_ID>"
-if [[ -z "$CONTRACT_ID" ]]; then
-    echo "Error: CONTRACT_ID is not defined. Please set it before running the script."
+#EDPS_CONTRACT_ID="<EDPS_CONTRACT_ID>"
+if [[ -z "$EDPS_CONTRACT_ID" ]]; then
+    echo "Error: EDPS_CONTRACT_ID is not defined. Please set it before running the script."
+    exit 1
+fi
+
+#DASEEN_CONTRACT_ID="<DASEEN_CONTRACT_ID>"
+if [[ -z "$DASEEN_CONTRACT_ID" ]]; then
+    echo "Error: DASEEN_CONTRACT_ID is not defined. Please set it before running the script."
     exit 1
 fi
 
@@ -17,8 +23,8 @@ curl -d @resources/requests/create-asset.json \
 
 
 echo -e "${GREEN}Creating EDPS job...${NC}\n"
-echo "CONTRACT_ID is: $CONTRACT_ID"
-JOB_RESPONSE=$(curl -d "{\"contractId\": \"$CONTRACT_ID\"}" \
+echo "EDPS_CONTRACT_ID is: $EDPS_CONTRACT_ID"
+JOB_RESPONSE=$(curl -d "{\"contractId\": \"$EDPS_CONTRACT_ID\"}" \
    -H 'content-type: application/json' http://localhost:19191/api/edp/edps/assetId1/jobs \
    -s | jq
 )
@@ -38,7 +44,7 @@ curl -d @resources/requests/create-result-asset.json \
   -s | jq
 
 echo -e "${GREEN}Publishing to Daseen...${NC}\n"
-curl -d "{\"contractId\": \"$CONTRACT_ID\"}" \
+curl -d "{\"contractId\": \"$DASEEN_CONTRACT_ID\"}" \
   -H 'content-type: application/json' http://localhost:19191/api/edp/daseen/resultAssetId1 \
   -s | jq
 

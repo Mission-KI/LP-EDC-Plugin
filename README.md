@@ -159,10 +159,16 @@ python ./util/edps-mock-server/server.py
 
 ### Setup Service Provider side
 
-#### 1. Create EDPS Asset
+#### 1. Create EDPS and Daseen Asset
 
 ```bash
 curl -d @resources/requests/create-edps-asset.json \
+  -H 'content-type: application/json' http://localhost:29193/management/v3/assets \
+  -s | jq
+```
+
+```bash
+curl -d @resources/requests/create-daseen-asset.json \
   -H 'content-type: application/json' http://localhost:29193/management/v3/assets \
   -s | jq
 ```
@@ -211,12 +217,18 @@ curl -d @resources/requests/fetch-service-provider-catalog.json \
   -s | jq
 ```
 
-#### 2. Negotiate contract
+#### 2. Negotiate contracts
 
-Please replace the `{{contract-offer-id}}` placeholder in the `negotiate-edps-contract.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
+Please replace the `{{contract-offer-id}}` placeholder in the `negotiate-edps-contract.json` and `negotiate-daseen-contract.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
 
 ```bash
 curl -d @resources/requests/negotiate-edps-contract.json \
+  -H 'content-type: application/json' http://localhost:19193/management/v3/contractnegotiations \
+  -s | jq
+```
+
+```bash
+curl -d @resources/requests/negotiate-daseen-contract.json \
   -H 'content-type: application/json' http://localhost:19193/management/v3/contractnegotiations \
   -s | jq
 ```
@@ -227,9 +239,15 @@ curl -d @resources/requests/negotiate-edps-contract.json \
 curl -X POST http://localhost:29193/management/v3/contractnegotiations/request | jq
 ```
 
+[Optional] Lookup contract agreements:
+
+```bash
+curl -X POST http://localhost:29193/management/v3/contractagreements/request | jq
+```
+
 #### 3. Create transfer process
 
-Please replace the `{{contract-id}}` placeholder in the `start-transfer.json` file with the contract id you found in the check contract negotiations request.
+Please replace the `{{contract-id}}` placeholder in the `start-transfer.json` file with the contract id you found in the lookup contract agreement request. Create a transfer process for edps and daseen.
 
 ```bash
 curl -d @resources/requests/start-transfer.json \
@@ -252,9 +270,6 @@ curl -X GET http://localhost:19193/management/v3/edrs/<transfer-process-id>/data
 ```
 
 ### Run EDP flow for asset
-
-- **TODO**: use contract agreement for edps
-- **TODO**: use contract agreement for daseen
 
 ### 1. Create Asset
 
@@ -316,7 +331,7 @@ curl -d @resources/requests/create-result-asset.json \
 
 ### 5. Publish Result to Daseen
 
-Please replace the `{{contract-offer-id}}` placeholder in the `publish-to-daseen-asset.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
+Please replace the `{{contract-id}}` placeholder in the `publish-to-daseen-asset.json` file with the contract offer id you found in the catalog at the path `dcat:dataset.odrl:hasPolicy.@id`.
 
 Note: This only works if Daseen and EDPS are running on the same endpoint with the same authorization. If this is not the case, you have to set up a new contract agreement for Daseen (analog to setting up the EDPS service asset and contract agreement).
 
