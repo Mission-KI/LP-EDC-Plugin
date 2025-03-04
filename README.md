@@ -114,6 +114,49 @@ The Api reference for the:
 - Management Api can be found [here](https://github.com/eclipse-edc/Connector/blob/gh-pages/openapi/management-api/3.0.6/management-api.yaml).
 - Extension Api can be found [here](resources/edc-edps-openapi.yml).
 
+## Using Automation Scripts
+
+The project includes automation scripts to simplify and test the setup and execution of the EDP workflow.
+
+### Using the Setup Script
+
+The `setup_contracts.sh` script automates the initial setup process including creating assets, policies, contract definitions, and establishing contracts with both EDPS and Daseen services:
+
+```bash
+# Run the setup script
+./setup_contracts.sh
+```
+
+This script will:
+
+1. Create EDPS and Daseen assets on the service provider side
+2. Create policy and contract definitions
+3. Fetch the service provider catalog
+4. Negotiate contracts for both EDPS and Daseen services
+5. Initiate transfer processes
+6. Extract and display the contract IDs for both services
+
+After running this script, you'll receive contract IDs for both EDPS and Daseen services that you'll need for the next step.
+
+### Running the EDP Flow
+
+After completing the setup, use the `run_edp_flow.sh` script to execute the complete EDP workflow. You need to provide the contract IDs obtained from the setup script:
+
+```bash
+# Run the workflow script with contract IDs
+EDPS_CONTRACT_ID="contract-id-from-setup" DASEEN_CONTRACT_ID="daseen-contract-id-from-setup" ./run_edp_flow.sh
+```
+
+This script will:
+
+1. Create a source asset for EDPS
+2. Create an EDPS job for analysis
+3. Fetch and store the EDPS job result
+4. Create a result asset
+5. Publish the result to Daseen
+
+These scripts automate the manual steps described in the following sections and provide a streamlined way to test the EDP workflow.
+
 ## EDP Workflow
 
 ### 1. Start the EDC server

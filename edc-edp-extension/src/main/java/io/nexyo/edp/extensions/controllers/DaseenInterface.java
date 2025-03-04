@@ -8,7 +8,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
-
 /**
  * RESTful interface for managing Daseen resources.
  */
@@ -19,7 +18,8 @@ public interface DaseenInterface {
      * Publishes an asset to the Daseen API.
      *
      * @param assetId The unique identifier of the asset to be published.
-     * @return A {@link Response} indicating the success or failure of the publication process.
+     * @return A {@link Response} indicating the success or failure of the
+     *         publication process.
      */
     @POST
     @Path("/{assetId}")
@@ -29,8 +29,9 @@ public interface DaseenInterface {
      * Updates a Daseen resource.
      *
      * @param assetId The unique identifier of the asset to be updated.
-     * @return A {@link Response} indicating the success or failure of the update process.
-     */ 
+     * @return A {@link Response} indicating the success or failure of the update
+     *         process.
+     */
     @PUT
     @Path("/{assetId}")
     Response update(@PathParam("assetId") String assetId);
@@ -39,8 +40,9 @@ public interface DaseenInterface {
      * Deletes a Daseen resource.
      *
      * @param assetId The unique identifier of the asset to be deleted.
-     * @return A {@link Response} indicating the success or failure of the deletion process.
-     */ 
+     * @return A {@link Response} indicating the success or failure of the deletion
+     *         process.
+     */
     @DELETE
     @Path("/{assetId}")
     Response delete(@PathParam("assetId") String assetId);
