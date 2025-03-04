@@ -103,4 +103,7 @@ echo "$DASEEN_TRANSFER_RESPONSE" | jq
 # Cleanup temporary files
 rm temp_negotiate_edps.json temp_negotiate_daseen.json temp_transfer_edps.json temp_transfer_daseen.json
 
-echo -e "\n${GREEN}Setup complete!${NC}" 
+echo -e "\n${GREEN}Setup complete!${NC}"
+
+echo -e "export EDPS_CONTRACT_ID=${EDPS_CONTRACT_ID}"
+echo -e "export DASEEN_CONTRACT_ID=${DASEEN_CONTRACT_ID}"
