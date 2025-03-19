@@ -3,6 +3,7 @@ import logging
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 import re
+import zipfile
 
 PORT = 8080
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,21 +45,52 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def serve_data_file(self, file_name):
         """Serve the specified file from the data directory."""
         data_file_path = os.path.join(DATA_DIR, file_name)
-
-        # TODO: try to parse the file as zip
         
-        if os.path.exists(data_file_path):
-            # Guess the content type based on the file extension
-            content_type = self.guess_type(data_file_path)
-            self.send_response(200)
-            self.send_header("Content-type", content_type)
-            self.end_headers()
-            with open(data_file_path, "rb") as file:
-                self.wfile.write(file.read())
-        else:
+        if not os.path.exists(data_file_path):
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"File not found.")
+            return
+            
+        # Get file size for Content-Length header
+        file_size = os.path.getsize(data_file_path)
+        if file_size == 0:
+            logging.warning(f"File {file_name} has zero size")
+            
+        # Guess the content type based on the file extension
+        content_type = self.guess_type(data_file_path)
+        
+        # Check if this is a ZIP file and validate it
+        if content_type == "application/zip" or file_name.lower().endswith('.zip'):
+            try:
+                # Attempt to open and validate the ZIP file
+                with zipfile.ZipFile(data_file_path, 'r') as zip_file:
+                    # Test the ZIP file for integrity
+                    zip_test_result = zip_file.testzip()
+                    if zip_test_result is not None:
+                        logging.warning(f"ZIP file {file_name} is corrupt. First bad file: {zip_test_result}")
+                    else:
+                        logging.info(f"ZIP file {file_name} is valid. Contains {len(zip_file.namelist())} files")
+                
+                # Force content type to application/zip even if guess_type failed
+                content_type = "application/zip"
+                logging.info(f"Serving ZIP file {file_name} with size {file_size} bytes")
+            except zipfile.BadZipFile:
+                logging.error(f"File {file_name} is not a valid ZIP file")
+                # Still serve the file, but log the error
+            except Exception as e:
+                logging.error(f"Error validating ZIP file {file_name}: {str(e)}")
+                # Still serve the file, but log the error
+        
+        # Send the response with proper headers
+        self.send_response(200)
+        self.send_header("Content-type", content_type)
+        self.send_header("Content-Length", str(file_size))
+        self.end_headers()
+        
+        # Send the file content
+        with open(data_file_path, "rb") as file:
+            self.wfile.write(file.read())
 
     def do_POST(self):
         """Handle POST requests for file upload."""
@@ -127,22 +159,23 @@ class CustomHandler(SimpleHTTPRequestHandler):
         logging.info(f"Saving uploaded file as: {file_name}")
         
         file_path = os.path.join(DATA_DIR, os.path.basename(file_name))
+        temp_file_path = file_path + ".tmp"
 
         try:
             # Check if content-length header is present
             content_length_str = self.headers.get("content-length")
             
-            # Create or open the file for writing
-            with open(file_path, "wb") as output_file:
+            # Create or open a temporary file for writing first
+            with open(temp_file_path, "wb") as output_file:
                 # If content-length is available, use it for reading data in chunks
                 if content_length_str:
                     content_length = int(content_length_str)
                     logging.info(f"Content length specified: {content_length} bytes")
                     
                     # Read all data in chunks to handle large files
-                    data = bytearray()
                     remaining = content_length
                     chunk_size = 8192  # 8KB chunks
+                    total_bytes = 0
                     
                     while remaining > 0:
                         chunk = self.rfile.read(min(remaining, chunk_size))
@@ -150,14 +183,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                             logging.warning("Premature end of data (connection closed?)")
                             break
                         output_file.write(chunk)
-                        data.extend(chunk)  # Keep track of data for logging
+                        total_bytes += len(chunk)
                         remaining -= len(chunk)
                     
                     # Check if we received the complete content
-                    if len(data) < content_length:
-                        logging.warning(f"Expected {content_length} bytes but received {len(data)} bytes")
-                    
-                    total_bytes = len(data)
+                    if total_bytes < content_length:
+                        logging.warning(f"Expected {content_length} bytes but received {total_bytes} bytes")
                 else:
                     # Handle chunked transfer encoding or unknown length
                     logging.info("No Content-Length header. Reading data until EOF.")
@@ -175,22 +206,51 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         if total_bytes % (10 * 1024 * 1024) == 0:  # Log every 10MB
                             logging.info(f"Read {total_bytes} bytes so far...")
             
-            # Log the final result
-            if os.path.exists(file_path):
-                file_size = os.path.getsize(file_path)
-                logging.info(f"File successfully saved to {file_path}, size: {file_size} bytes")
+            # Check if the file was saved successfully
+            if os.path.exists(temp_file_path):
+                file_size = os.path.getsize(temp_file_path)
+                logging.info(f"File successfully saved to temporary location, size: {file_size} bytes")
                 
                 if file_size == 0:
                     logging.error("File was saved but has 0 bytes!")
                 elif file_size != total_bytes and content_length_str:
                     logging.warning(f"Mismatch: received {total_bytes} bytes but saved file size is {file_size} bytes")
-            else:
-                logging.error(f"File was not saved at {file_path}")
                 
+                # Validate zip file if it's meant to be one
+                is_valid_zip = False
+                if file_name.lower().endswith('.zip') or content_type in ["application/zip", "application/x-zip-compressed"]:
+                    try:
+                        with zipfile.ZipFile(temp_file_path, 'r') as zip_file:
+                            # Test the ZIP file for integrity
+                            zip_test_result = zip_file.testzip()
+                            if zip_test_result is not None:
+                                logging.warning(f"Uploaded ZIP file is corrupt. First bad file: {zip_test_result}")
+                            else:
+                                logging.info(f"Uploaded ZIP file is valid. Contains {len(zip_file.namelist())} files")
+                                is_valid_zip = True
+                    except zipfile.BadZipFile:
+                        logging.error(f"Uploaded file is not a valid ZIP file")
+                    except Exception as e:
+                        logging.error(f"Error validating ZIP file: {str(e)}")
+                
+                # Move the temporary file to its final location
+                if os.path.exists(file_path):
+                    os.remove(file_path)  # Remove existing file if it exists
+                os.rename(temp_file_path, file_path)
+                
+                # Prepare response message
+                response_msg = f"File upload processed. Received {total_bytes} bytes as {file_name}"
+                if file_name.lower().endswith('.zip'):
+                    response_msg += f". ZIP file validation: {'PASSED' if is_valid_zip else 'FAILED'}"
+            else:
+                logging.error(f"Temporary file was not saved at {temp_file_path}")
+                response_msg = "File upload failed: Temporary file not saved"
+                
+            # Send response
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
-            self.wfile.write(f"File upload processed. Received {total_bytes} bytes as {file_name}".encode())
+            self.wfile.write(response_msg.encode())
             
         except Exception as e:
             logging.error(f"Error saving file: {str(e)}", exc_info=True)
@@ -198,6 +258,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(f"Error saving file: {e}".encode())
+            
+            # Clean up temporary file if it exists
+            if os.path.exists(temp_file_path):
+                try:
+                    os.remove(temp_file_path)
+                except:
+                    pass
 
 
 if __name__ == "__main__":
