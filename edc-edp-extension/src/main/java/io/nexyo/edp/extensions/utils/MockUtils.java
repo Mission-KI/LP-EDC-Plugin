@@ -1,9 +1,9 @@
 package io.nexyo.edp.extensions.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 /**
  * Utility class for creating mock data.
@@ -16,7 +16,6 @@ public class MockUtils {
     private MockUtils() {
     }
 
-
     /**
      * Creates a mock request body for creating an EDPS job.
      *
@@ -26,27 +25,37 @@ public class MockUtils {
      */
     public static Map<String, Object> createRequestBody(String assetId) {
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("assetId", assetId);
         requestBody.put("name", "Example Analysis Job");
-        requestBody.put("url", "https://example.com/data");
-        requestBody.put("dataCategory", "Example Category");
+
+        // Create assetRef object
+        Map<String, Object> assetRef = new HashMap<>();
+        assetRef.put("assetId", assetId);
+        assetRef.put("assetUrl", "https://example.com/data");
+        assetRef.put("assetVersion", "1.0");
 
         Map<String, String> dataSpace = Map.of("name", "Example Dataspace", "url", "https://dataspace.com");
-        requestBody.put("dataSpace", dataSpace);
+        assetRef.put("dataSpace", dataSpace);
 
         Map<String, String> publisher = Map.of("name", "Publisher Name", "url", "https://publisher.com");
-        requestBody.put("publisher", publisher);
+        assetRef.put("publisher", publisher);
 
-        requestBody.put("publishDate", "2025-01-22T16:25:09.719Z");
+        assetRef.put("publishDate", "2025-01-22T16:25:09.719Z");
 
         Map<String, String> license = Map.of("name", "License Name", "url", "https://license.com");
-        requestBody.put("license", license);
+        assetRef.put("license", license);
 
+        // Add assetRef to assetRefs array
+        List<Map<String, Object>> assetRefs = new ArrayList<>();
+        assetRefs.add(assetRef);
+        requestBody.put("assetRefs", assetRefs);
+
+        // Add remaining fields at the root level
+        requestBody.put("dataCategory", "Example Category");
         requestBody.put("assetProcessingStatus", "Original Data");
         requestBody.put("description", "Example Description");
         requestBody.put("tags", List.of("tag1", "tag2"));
         requestBody.put("dataSubCategory", "SubCategory");
-        requestBody.put("version", "1.0");
+        requestBody.put("assetTypeInfo", "string");
         requestBody.put("transferTypeFlag", "static");
         requestBody.put("immutabilityFlag", "immutable");
         requestBody.put("growthFlag", "KB");

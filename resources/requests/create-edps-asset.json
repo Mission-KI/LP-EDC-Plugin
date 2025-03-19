@@ -10,7 +10,7 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "http://localhost:8081",
+      "baseUrl": "https://static.146.95.4.46.clients.your-server.de",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",

@@ -55,20 +55,21 @@ public class DaseenService {
                 final var daseenAuthorizationFromContract = this.edrService.getEdrProperty(contractId,
                                 ConfigurationUtils.EDR_PROPERTY_EDPS_AUTH_KEY);
 
-                var jsonb = JsonbBuilder.create();
-                var requestBody = MockUtils.createRequestBody(assetId);
-                String jsonRequestBody = jsonb.toJson(requestBody);
+                // var jsonb = JsonbBuilder.create();
+                // var requestBody = MockUtils.createRequestBody(assetId);
+                // String jsonRequestBody = jsonb.toJson(requestBody);
 
-                var apiResponse = httpClient.target(String.format("%s/connector/edp", daseenBaseUrlFromContract))
-                                .request(MediaType.APPLICATION_JSON)
+                var apiResponse = httpClient.target(String.format("%s/connector/edp/", daseenBaseUrlFromContract))
+                                .request()
+                                .header("accept", "*/*")
                                 .header("Authorization", daseenAuthorizationFromContract)
-                                .post(Entity.entity(jsonRequestBody, MediaType.APPLICATION_JSON));
+                                .post(Entity.json(""));
 
                 if (!(apiResponse.getStatus() >= 200 && apiResponse.getStatus() < 300)) {
                         this.logger.warning("Failed to create EDP entry in Daseen for asset id: " + assetId
                                         + ". Status was: "
                                         + apiResponse.getStatus());
-                        throw new EdpException("EDPS job creation failed for asset id: " + assetId);
+                        throw new EdpException("Daseen job creation failed for asset id: " + assetId);
                 }
 
                 String responseBody = apiResponse.readEntity(String.class);
@@ -97,9 +98,10 @@ public class DaseenService {
 
                 var destinationAddress = HttpDataAddress.Builder.newInstance()
                                 .type(FlowType.PUSH.toString())
-                                .method(HttpMethod.POST)
+                                .method(HttpMethod.PUT)
+                                .addAdditionalHeader("accept", "application/json")
                                 .addAdditionalHeader("Authorization", daseenAuthorizationFromContract)
-                                .baseUrl(String.format("%s/connector/edp/%s", daseenBaseUrlFromContract,
+                                .baseUrl(String.format("%s/connector/edp/%s/edp-result.zip/", daseenBaseUrlFromContract,
                                                 daseenResourceDto.getResourceId()))
                                 .build();
 
@@ -168,7 +170,7 @@ public class DaseenService {
                                         + daseenResourceDto.getAssetId()
                                         + ". Status was: " + apiResponse.getStatus());
                         throw new EdpException(
-                                        "EDPS job creation failed for asset id: " + daseenResourceDto.getAssetId());
+                                        "Daseen job creation failed for asset id: " + daseenResourceDto.getAssetId());
                 }
         }
 
