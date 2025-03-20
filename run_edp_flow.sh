@@ -35,6 +35,24 @@ JOB_ID=$(echo "$JOB_RESPONSE" | jq -r '.jobId')
 
 echo -e "${GREEN}Creating result asset for job $JOB_ID...${NC}\n"
 
+echo -e "${YELLOW}Waiting for EDPS job to complete...${NC}"
+while true; do
+    STATUS_RESPONSE=$(curl -s http://localhost:19191/api/edp/edps/assetId1/jobs/$JOB_ID/status)
+    STATE=$(echo "$STATUS_RESPONSE" | jq -r '.state')
+    echo -e "Current state: $STATE"
+    
+    if [ "$STATE" = "COMPLETED" ]; then
+        echo -e "${GREEN}Job completed successfully${NC}"
+        break
+    elif [ "$STATE" = "FAILED" ]; then
+        echo -e "${RED}Job failed${NC}"
+        exit 1
+    fi
+    
+    sleep 5
+done
+
+
 curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs/$JOB_ID/result \
  -H 'content-type: application/json' \
  -d @resources/requests/fetch-edps-result.json
