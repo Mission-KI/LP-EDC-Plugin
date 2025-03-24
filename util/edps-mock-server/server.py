@@ -6,6 +6,7 @@ import socket
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 import zipfile
+import time
 
 PORT = 8081
 TIMEOUT = 120  # Increased timeout from 30 to 120 seconds
@@ -207,10 +208,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_create_analysisjob()
         elif parsed_path.startswith("/v1/dataspace/analysisjob/") and "/data/file" in parsed_path:
             self.handle_analysisjob_upload(parsed_path)
-        elif parsed_path == "/connector/edp":
+        elif parsed_path == "/connector/edp/":
             self.handle_daseen_create()
-        elif parsed_path.startswith("/connector/edp/"):
-            self.handle_daseen_upload(parsed_path)
         else:
             self.send_response(404)
             self.end_headers()
@@ -222,7 +221,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         parsed_path = urlparse(self.path).path
 
         if parsed_path.startswith("/connector/edp/"):
-            self.handle_daseen_update(parsed_path)
+            self.handle_daseen_upload(parsed_path)
         else:
             self.send_response(404)
             self.end_headers()
@@ -405,29 +404,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 logging.error("Could not send error response - connection already closed")
 
     def handle_daseen_upload(self, parsed_path):
-        """Handle daseen data upload to specific connector."""
-        try:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-
-            response = {
-                "state": "SUCCESS",
-                "state_detail": "EDPS data published to Daseen"
-            }
-            self.wfile.write(json.dumps(response).encode())
-        except (BrokenPipeError, ConnectionResetError, socket.error) as e:
-            logging.error(f"Connection error while handling daseen upload: {str(e)}")
-        except Exception as e:
-            logging.error(f"Error uploading data: {str(e)}")
-            try:
-                self.send_response(500)
-                self.end_headers()
-                self.wfile.write(f"Error uploading data: {str(e)}".encode())
-            except (BrokenPipeError, ConnectionResetError, socket.error):
-                logging.error("Could not send error response - connection already closed")
-
-    def handle_daseen_update(self, parsed_path):
         """Handle daseen connector updates."""
         try:
             # Extract connector ID and other path components

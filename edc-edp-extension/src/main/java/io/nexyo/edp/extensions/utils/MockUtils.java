@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Utility class for creating mock data.
@@ -25,11 +26,13 @@ public class MockUtils {
      */
     public static Map<String, Object> createRequestBody(String assetId) {
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", "Example Analysis Job");
+        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy-HH:mm:ss"));
+        requestBody.put("name", "Example EDC Asset - " + timestamp);
 
         // Create assetRef object
         Map<String, Object> assetRef = new HashMap<>();
-        assetRef.put("assetId", assetId);
+        String randomSuffix = UUID.randomUUID().toString().substring(0, 6);
+        assetRef.put("assetId", assetId + "-" + randomSuffix);
         assetRef.put("assetUrl", "https://example.com/data");
         assetRef.put("assetVersion", "1.0");
 

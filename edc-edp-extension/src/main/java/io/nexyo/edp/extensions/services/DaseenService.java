@@ -96,12 +96,16 @@ public class DaseenService {
                                 daseenResourceDto.getContractId(),
                                 ConfigurationUtils.EDR_PROPERTY_EDPS_AUTH_KEY);
 
+                // TODO: replace daseenBaseUrl and daseenAuthorization with values from create daseen resource response
+                final var daseenBaseUrl = ConfigurationUtils.readStringProperty("edp.daseen.api", "url");
+                final var daseenAuthorization = ConfigurationUtils.readStringProperty("edp.daseen.api", "key");
+
                 var destinationAddress = HttpDataAddress.Builder.newInstance()
                                 .type(FlowType.PUSH.toString())
                                 .method(HttpMethod.PUT)
                                 .addAdditionalHeader("accept", "application/json")
-                                .addAdditionalHeader("Authorization", daseenAuthorizationFromContract)
-                                .baseUrl(String.format("%s/connector/edp/%s/edp-result.zip/", daseenBaseUrlFromContract,
+                                .addAdditionalHeader("Authorization", String.format("Bearer %s", daseenAuthorization))
+                                .baseUrl(String.format("%s/connector/edp/%s/edp-result.zip/", daseenBaseUrl,
                                                 daseenResourceDto.getResourceId()))
                                 .build();
 

@@ -10,12 +10,12 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "Daseen Service",
-      "baseUrl": "https://api.daseen-staging.de",
+      "baseUrl": "<DASEEN_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
       "proxyBody": "true",
       "authKey": "Authorization",
-      "authCode": "Bearer {{authCode}}"
+      "authCode": "Bearer <API_KEY>"
     }
   }

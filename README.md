@@ -1,5 +1,7 @@
 # EDC - EDP Extension
 
+> **Note**: This repository contains a work in progress implementation and is not yet intended for production use.
+
 This documentation describes the EDP plugin, a EDC (Eclipse Dataspace Component) extension for interacting with Enhanced Dataset Profile Service (EDPS) and Data Space Search Engine (Daseen). The plugin facilitates creating, managing, and publishing Enhanced Dataset Profiles (EDPs) within a data space ecosystem.
 
 ## System Architecture Overview
@@ -115,6 +117,24 @@ The Api reference for the:
 - Extension Api can be found [here](resources/edc-edps-openapi.yml).
 
 ## EDP Workflow
+
+### Setup config
+
+Before running the application, you need to configure the EDPS and DASEEN service credentials in the following files:
+
+#### Provider Configuration
+Configure your EDPS and DASEEN credentials in `resources/configuration/provider-configuration.properties`. This step will be replaced with setup over contract agreement in the next version
+
+#### Service Assets Configuration
+The EDPS and DASEEN service credentials also need to be updated in the asset configuration files:
+
+1. For EDPS service in `resources/requests/create-edps-asset.json`:
+   - Replace `<EDPS_BASE_URL>` with your EDPS base URL
+   - Replace `<API_KEY>` with your EDPS API key
+
+2. For DASEEN service in `resources/requests/create-daseen-asset.json`:
+   - Replace `<DASEEN_BASE_URL>` with your DASEEN base URL
+   - Replace `<API_KEY>` with your DASEEN API key
 
 ### 1. Start the EDC server
 
@@ -404,7 +424,4 @@ These scripts automate the manual steps described in the following sections and 
 
 ## ToDos
 
-- Add tests
-- Support for other transfer types
-- Use job infos from request rather than currently used test data
-- Add routes for dataplane results (POST and GET)
+- Replace edps and daseen upload flow with endpoint credentials from create requests

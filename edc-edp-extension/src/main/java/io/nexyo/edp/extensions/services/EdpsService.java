@@ -130,14 +130,18 @@ public class EdpsService {
                 var transferProcess = this.edrService.getCurrentTransferProcess(contractId);
                 var participantId = this.edrService.getContractAgreement(contractId).getProviderId();
 
-                final var edpsBaseUrl = this.edrService.getEdrProperty(contractId,
+                final var edpsBaseUrlFromContract = this.edrService.getEdrProperty(contractId,
                                 ConfigurationUtils.EDR_PROPERTY_EDPS_BASE_URL_KEY);
                 final var edpsAuthorizationFromContract = this.edrService.getEdrProperty(contractId,
                                 ConfigurationUtils.EDR_PROPERTY_EDPS_AUTH_KEY);
 
+                // TODO: replace edpsBaseUrl and edpsAuthorization with values from create edps resource response
+                final var edpsBaseUrl = ConfigurationUtils.readStringProperty("edp.edps.api", "url");
+                final var edpsAuthorization = ConfigurationUtils.readStringProperty("edp.edps.api", "key");
+
                 var destinationAddress = HttpDataAddress.Builder.newInstance()
                                 .type(FlowType.PUSH.toString())
-                                .addAdditionalHeader("Authorization", edpsAuthorizationFromContract)
+                                .addAdditionalHeader("Authorization", String.format("Bearer %s", edpsAuthorization))
                                 .property("header:accept", "application/json")
                                 .baseUrl(String.format("%s/v1/dataspace/analysisjob/%s/data/filename.csv", edpsBaseUrl,
                                                 edpsJobDto.getJobId()))

@@ -10,10 +10,12 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "https://static.146.95.4.46.clients.your-server.de",
+      "baseUrl": "<EDPS_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
-      "proxyBody": "true"
+      "proxyBody": "true",
+      "authKey": "Authorization",
+      "authCode": "Bearer <API_KEY>"
     }
   }
