@@ -6,17 +6,17 @@
     "properties": {
       "name": "Daseen Service",
       "contenttype": "application/json",
-      "baseUrl": "https://api.daseen-staging.de"
+      "baseUrl": "http://localhost:8081"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "Daseen Service",
-      "baseUrl": "https://api.daseen-staging.de",
+      "baseUrl": "http://localhost:8081",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
       "proxyBody": "true",
       "authKey": "Authorization",
-      "authCode": "Bearer <API_KEY>"
+      "authCode": "Bearer api-key"
     }
   }

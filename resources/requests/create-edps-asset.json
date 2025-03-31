@@ -6,12 +6,12 @@
     "properties": {
       "name": "EDPS Service",
       "contenttype": "application/json",
-      "baseUrl": "https://static.146.95.4.46.clients.your-server.de"
+      "baseUrl": "http://localhost:8081"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "https://static.146.95.4.46.clients.your-server.de",
+      "baseUrl": "http://localhost:8081",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
