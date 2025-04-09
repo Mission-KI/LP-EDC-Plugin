@@ -1,4 +1,4 @@
-# EDC - EDPS Extension
+# EDC - EDP Extension
 
 
 To extend the EDC with the EDPS functionality, this extension provides the following features:
@@ -8,6 +8,8 @@ To extend the EDC with the EDPS functionality, this extension provides the follo
 - Create a result asset in EDC with the enhanced data
 - Publish the result asset to Daseen
 
+## Requirements
+- Java 17 (17.0.8+7)
 
 ## Project Structure
 
@@ -56,12 +58,13 @@ Start the http server with the following command:
 python ./util/http-file-server/server.py
 ```
 
-The file server will be used to provide files referenced by the EDC assets.  
+The file server will be used to provide files referenced by the EDC assets. 
+Additionally, the file server acts as the callback address for the dataplane, logging the results of dataplane operations.
 
 Start the mock server for the EDPS and Daseen Api:
 
 ```bash
-python python ./util/edps-mock-server/server.py
+python ./util/edps-mock-server/server.py
 ```
 
 ### 3. Create Asset
@@ -88,6 +91,12 @@ curl -X POST http://localhost:19191/api/edp/edps/assetId1/jobs  | jq
 ```
 
 Note the `jobId` in the response as it is needed for the next step.
+
+[Optional] Get EDPS job by assetId:
+```bash
+curl http://localhost:19191/api/edp/edps/assetId1/jobs | jq 
+```
+
 
 [Optional] Get EDPS job status:
 
@@ -117,9 +126,20 @@ curl -d @edc-edp-extension/connector/src/main/resources/requests/create-result-a
 ### 7. Publish Result to Daseen
 
 ```bash
-curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
+curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
 ```
 
+[optional] Update Daseen entry
+
+```bash
+curl -X PUT http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+```
+
+[optional] Delete Daseen entry
+
+```bash
+curl -X DELETE http://localhost:19191/api/edp/daseen/resultAssetId1 | jq
+```
 
 ## Limitations
 
@@ -130,8 +150,7 @@ curl -X POST http://localhost:19191/api/edp/daseen/resultAssetId1/publish | jq
 
 ## ToDos
 
-- Proper error handling for Dataplane operations
-- Persistence: store edps job information
-- Add job status route to mock server
-- Javadoc
-
+- Add tests
+- Support for other transfer types
+- Use job infos from request rather than currently used test data
+- Add routes for dataplane results (POST and GET)

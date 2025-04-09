@@ -1,12 +1,12 @@
 openapi: 3.0.3
 info:
-  title: EDPS API
-  description: RESTful API for managing EDPS jobs and their results. Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
-  version: 0.1.0
+  title: EDC - EDP Extension API
+  description: RESTful API for managing Extended Dataset Profile (EDP) jobs, results, and Daseen resources.
+  version: 0.2.0
 
 servers:
   - url: /edp
-    description: Base API path
+    description: Base API path for EDP operations
 
 paths:
   /edps/{assetId}/jobs:
@@ -106,21 +106,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericResponseDto'
 
-  /daseen/{edpsAssetId}/publish:
+  /daseen/{assetId}:
     post:
-      summary: Publish EDPS asset to Daseen
-      description: Publishes an EDPS asset to the Daseen API.
-      operationId: publishEdpsAssetToDaseen
+      summary: Create a Daseen resource
+      description: Publishes an asset to the Daseen API.
+      operationId: createDaseenResource
       parameters:
-        - name: edpsAssetId
+        - name: assetId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the EDPS result asset to be published
+          description: The unique identifier of the asset to be published
       responses:
         '200':
-          description: Successfully published to Daseen
+          description: Successfully created Daseen resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponseDto'
+
+    put:
+      summary: Update a Daseen resource
+      description: Updates an existing asset in the Daseen API.
+      operationId: updateDaseenResource
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the asset to be updated
+      responses:
+        '200':
+          description: Successfully updated Daseen resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponseDto'
+
+    delete:
+      summary: Delete a Daseen resource
+      description: Deletes an asset from the Daseen API.
+      operationId: deleteDaseenResource
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the asset to be deleted
+      responses:
+        '200':
+          description: Successfully deleted Daseen resource
           content:
             application/json:
               schema:
