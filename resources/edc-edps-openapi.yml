@@ -40,6 +40,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the asset to create a job for
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdpsCreateJobRequestDto'
       responses:
         '200':
           description: Successfully created EDPS job
@@ -77,7 +83,7 @@ paths:
   /edps/{assetId}/jobs/{jobId}/result:
     post:
       summary: Fetch and store EDPS job result
-      description: Retrieves the result from EDPS and stores the result file in the system.
+      description: Retrieves the result from EDPS and stores the result file on the specified destination data address.
       operationId: fetchEdpsJobResult
       parameters:
         - name: assetId
@@ -118,6 +124,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the asset to be published
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DaseenCreateEntryRequestDto'
       responses:
         '200':
           description: Successfully created Daseen resource
@@ -187,12 +199,26 @@ components:
           type: string
           description: Additional details about the job state
 
+    EdpsCreateJobRequestDto:
+      type: object
+      properties:
+        contractId:
+          type: string
+          description: The contract ID to be used for the EDPS job
+
     EdpsResultRequestDto:
       type: object
       properties:
         destinationAddress:
           type: string
           description: The address where the result should be delivered
+
+    DaseenCreateEntryRequestDto:
+      type: object
+      properties:
+        contractId:
+          type: string
+          description: The contract ID to be used for the Daseen resource
 
     GenericResponseDto:
       type: object
