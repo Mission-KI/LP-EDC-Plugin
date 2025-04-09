@@ -28,5 +28,6 @@ dependencyResolutionManagement {
     }
 }
 
-include("edc-edp-extension:connector")
-include(":util:http-request-logger")
+include("connector")
+include("edc-edp-extension")
+include("edc-seed-vault")

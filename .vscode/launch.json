@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Runner Provider",
+            "request": "launch",
+            "mainClass": "io.nexyo.edp.extensions.Runner",
+            "projectName": "edc-edp-extension",
+            "vmArgs": [
+                "-Dedc.fs.config=resources/configuration/provider-configuration.properties",
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Runner Service Provider",
+            "request": "launch",
+            "mainClass": "io.nexyo.edp.extensions.Runner",
+            "projectName": "edc-edp-extension",
+            "vmArgs": [
+                "-Dedc.fs.config=resources/configuration/service-provider-configuration.properties",
+            ]
+        }
+    ]
+} 

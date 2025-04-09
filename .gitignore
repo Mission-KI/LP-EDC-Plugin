@@ -32,6 +32,7 @@ build
 .idea
 .vs
 .vscode
+!.vscode/launch.json
 
 /secrets
 
