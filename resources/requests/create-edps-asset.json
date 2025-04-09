@@ -10,10 +10,12 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "http://localhost:8081",
+      "baseUrl": "<EDPS_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
-      "proxyBody": "true"
+      "proxyBody": "true",
+      "authKey": "Authorization",
+      "authCode": "Bearer <API_KEY>"
     }
   }

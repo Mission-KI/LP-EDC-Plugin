@@ -10,10 +10,12 @@
     "dataAddress": {
       "type": "HttpData",
       "name": "Daseen Service",
-      "baseUrl": "http://localhost:8081",
+      "baseUrl": "<DASEEN_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
-      "proxyBody": "true"
+      "proxyBody": "true",
+      "authKey": "Authorization",
+      "authCode": "Bearer <API_KEY>"
     }
   }
