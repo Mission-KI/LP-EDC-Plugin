@@ -60,7 +60,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
         response = {
             "job_id": f"{job_id}",
-            "state": "WAITING_FOR_DATA",
+            "state": "COMPLETED",
             "state_detail": "Job is waiting for data to be uploaded."
         }
         response_bytes = json.dumps(response, indent=2).encode('utf-8')

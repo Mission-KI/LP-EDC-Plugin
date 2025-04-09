@@ -25,9 +25,9 @@ public class MockUtils {
      * @return The request body for creating an EDPS job
      */
     public static Map<String, Object> createRequestBody(String assetId) {
-        Map<String, Object> requestBody = new HashMap<>();
+        Map<String, Object> innerRequestBody = new HashMap<>();
         String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy-HH:mm:ss"));
-        requestBody.put("name", "Example EDC Asset - " + timestamp);
+        innerRequestBody.put("name", "Example EDC Asset - " + timestamp);
 
         // Create assetRef object
         Map<String, Object> assetRef = new HashMap<>();
@@ -50,23 +50,27 @@ public class MockUtils {
         // Add assetRef to assetRefs array
         List<Map<String, Object>> assetRefs = new ArrayList<>();
         assetRefs.add(assetRef);
-        requestBody.put("assetRefs", assetRefs);
+        innerRequestBody.put("assetRefs", assetRefs);
 
         // Add remaining fields at the root level
-        requestBody.put("dataCategory", "Example Category");
-        requestBody.put("assetProcessingStatus", "Original Data");
-        requestBody.put("description", "Example Description");
-        requestBody.put("tags", List.of("tag1", "tag2"));
-        requestBody.put("dataSubCategory", "SubCategory");
-        requestBody.put("assetTypeInfo", "string");
-        requestBody.put("transferTypeFlag", "static");
-        requestBody.put("immutabilityFlag", "immutable");
-        requestBody.put("growthFlag", "Bytes/day");
-        requestBody.put("transferTypeFrequency", "updates by second");
-        requestBody.put("nda", "NDA text");
-        requestBody.put("dpa", "DPA text");
-        requestBody.put("dataLog", "Data Log Entry");
-        requestBody.put("freely_available", true);
+        innerRequestBody.put("dataCategory", "Example Category");
+        innerRequestBody.put("assetProcessingStatus", "Original Data");
+        innerRequestBody.put("description", "Example Description");
+        innerRequestBody.put("tags", List.of("tag1", "tag2"));
+        innerRequestBody.put("dataSubCategory", "SubCategory");
+        innerRequestBody.put("assetTypeInfo", "string");
+        innerRequestBody.put("transferTypeFlag", "static");
+        innerRequestBody.put("immutabilityFlag", "immutable");
+        innerRequestBody.put("growthFlag", "Bytes/day");
+        innerRequestBody.put("transferTypeFrequency", "updates by second");
+        innerRequestBody.put("nda", "NDA text");
+        innerRequestBody.put("dpa", "DPA text");
+        innerRequestBody.put("dataLog", "Data Log Entry");
+        innerRequestBody.put("freely_available", true);
+
+        // Wrap the inner object in an outer object with the key "user_provided_edp_data"
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("user_provided_edp_data", innerRequestBody);
 
         return requestBody;
     }
