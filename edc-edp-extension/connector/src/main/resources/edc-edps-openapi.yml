@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: EDPS API
+  description: RESTful API for managing EDPS jobs and their results. Provides endpoints for creating, monitoring, and retrieving results from EDPS jobs.
+  version: 0.1.0
+
+servers:
+  - url: /edp
+    description: Base API path
+
+paths:
+  /edps/{assetId}/jobs:
+    get:
+      summary: Get all EDPS jobs for an asset
+      description: Retrieves all EDPS jobs associated with a specific asset.
+      operationId: getEdpsJob
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the asset to retrieve jobs for
+      responses:
+        '200':
+          description: Successfully retrieved EDPS jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdpsJobDto'
+
+    post:
+      summary: Create a new EDPS job
+      description: Creates a new EDPS job for a specific asset and submits the associated file to EDPS.
+      operationId: createEdpsJob
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the asset to create a job for
+      responses:
+        '200':
+          description: Successfully created EDPS job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdpsJobDto'
+
+  /edps/{assetId}/jobs/{jobId}/status:
+    get:
+      summary: Get status of an EDPS job
+      description: Retrieves the current status of a specific EDPS job.
+      operationId: getEdpsJobStatus
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the asset associated with the job
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the job to check status for
+      responses:
+        '200':
+          description: Successfully retrieved job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdpsJobDto'
+
+  /edps/{assetId}/jobs/{jobId}/result:
+    post:
+      summary: Fetch and store EDPS job result
+      description: Retrieves the result from EDPS and stores the result file in the system.
+      operationId: fetchEdpsJobResult
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the original asset
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the completed job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdpsResultRequestDto'
+      responses:
+        '200':
+          description: Successfully fetched and stored job result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponseDto'
+
+  /daseen/{edpsAssetId}/publish:
+    post:
+      summary: Publish EDPS asset to Daseen
+      description: Publishes an EDPS asset to the Daseen API.
+      operationId: publishEdpsAssetToDaseen
+      parameters:
+        - name: edpsAssetId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the EDPS result asset to be published
+      responses:
+        '200':
+          description: Successfully published to Daseen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponseDto'
+
+components:
+  schemas:
+    EdpsJobDto:
+      type: object
+      description: Represents an EDPS job
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The unique identifier of the job model
+        asset_id:
+          type: string
+          description: The identifier of the associated asset
+        job_id:
+          type: string
+          description: The unique identifier of the job
+        state:
+          type: string
+          description: The current state of the job
+        state_detail:
+          type: string
+          description: Additional details about the job state
+
+    EdpsResultRequestDto:
+      type: object
+      properties:
+        destinationAddress:
+          type: string
+          description: The address where the result should be delivered
+
+    GenericResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+        status:
+          type: string
+          enum: [OK, ERROR]
+          description: Status of the operation
