@@ -123,14 +123,13 @@ The Api reference for the:
 Before running the application, you need to configure the EDPS and DASEEN service credentials in the following files:
 
 #### Provider Configuration
-Configure your EDPS and DASEEN credentials in `resources/configuration/provider-configuration.properties`. This step will be replaced with setup over contract agreement in the next version
+Configure your DASEEN API credentials in `resources/configuration/provider-configuration.properties`. This step will be replaced with setup over contract agreement in the next version
 
 #### Service Assets Configuration
 The EDPS and DASEEN service credentials also need to be updated in the asset configuration files:
 
 1. For EDPS service in `resources/requests/create-edps-asset.json`:
    - Replace `<EDPS_BASE_URL>` with your EDPS base URL
-   - Replace `<API_KEY>` with your EDPS API key
 
 2. For DASEEN service in `resources/requests/create-daseen-asset.json`:
    - Replace `<DASEEN_BASE_URL>` with your DASEEN base URL
@@ -424,4 +423,4 @@ These scripts automate the manual steps described in the following sections and 
 
 ## ToDos
 
-- Replace edps and daseen upload flow with endpoint credentials from create requests
+- Replace daseen authentication with proper auth mechanism

@@ -7,7 +7,9 @@ import io.nexyo.edp.extensions.utils.ConfigurationUtils;
 import io.nexyo.edp.extensions.utils.LoggingUtils;
 import org.eclipse.edc.connector.controlplane.asset.spi.index.AssetIndex;
 import org.eclipse.edc.connector.controlplane.services.spi.asset.AssetService;
+import org.eclipse.edc.connector.controlplane.services.spi.catalog.CatalogService;
 import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
+import org.eclipse.edc.connector.controlplane.services.spi.contractnegotiation.ContractNegotiationService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
 import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
@@ -41,7 +43,13 @@ public class EdpServiceExtension implements ServiceExtension {
     private AssetService assetService;
 
     @Inject
+    private CatalogService catalogService;
+
+    @Inject
     private ContractAgreementService contractAgreementService;
+
+    @Inject
+    private ContractNegotiationService contractNegotiationService;
 
     @Inject
     private TransferProcessService transferProcessService;
@@ -71,7 +79,7 @@ public class EdpServiceExtension implements ServiceExtension {
         logger.info("EdpServiceExtension initialized");
 
         final var dataplaneService = new DataplaneService(dataPlaneSelectorService, clientFactory, assetIndexer);
-        this.edrService = new EdrService(contractAgreementService, transferProcessService, edrStore);
+        this.edrService = new EdrService(catalogService, contractNegotiationService, contractAgreementService, transferProcessService, edrStore);
         this.edpsService = new EdpsService(dataplaneService, edrService);
         this.daseenService = new DaseenService(dataplaneService, edrService);
         final var edpsController = new EdpsController(edpsService, assetService);

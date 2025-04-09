@@ -5,17 +5,16 @@
     "@id": "edps1",
     "properties": {
       "name": "EDPS Service",
-      "contenttype": "application/json"
+      "contenttype": "application/json",
+      "baseUrl": "https://static.146.95.4.46.clients.your-server.de"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "<EDPS_BASE_URL>",
+      "baseUrl": "https://static.146.95.4.46.clients.your-server.de",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
-      "proxyBody": "true",
-      "authKey": "Authorization",
-      "authCode": "Bearer <API_KEY>"
+      "proxyBody": "true"
     }
   }

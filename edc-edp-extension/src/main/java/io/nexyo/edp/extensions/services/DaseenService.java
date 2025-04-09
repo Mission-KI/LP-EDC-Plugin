@@ -90,14 +90,10 @@ public class DaseenService {
                 this.logger
                                 .info(String.format("Publishing Resource for Asset %s to Daseen...",
                                                 daseenResourceDto.getAssetId()));
-                final var daseenBaseUrlFromContract = this.edrService.getEdrProperty(daseenResourceDto.getContractId(),
-                                ConfigurationUtils.EDR_PROPERTY_EDPS_BASE_URL_KEY);
-                final var daseenAuthorizationFromContract = this.edrService.getEdrProperty(
-                                daseenResourceDto.getContractId(),
-                                ConfigurationUtils.EDR_PROPERTY_EDPS_AUTH_KEY);
 
-                // TODO: replace daseenBaseUrl and daseenAuthorization with values from create daseen resource response
-                final var daseenBaseUrl = ConfigurationUtils.readStringProperty("edp.daseen.api", "url");
+                final var daseenBaseUrl = this.edrService.getServiceBaseUrlFromMetadata(daseenResourceDto.getContractId());
+
+                // TODO: replace daseenAuthorization with proper auth mechanism
                 final var daseenAuthorization = ConfigurationUtils.readStringProperty("edp.daseen.api", "key");
 
                 var destinationAddress = HttpDataAddress.Builder.newInstance()

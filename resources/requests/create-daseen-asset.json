@@ -5,12 +5,13 @@
     "@id": "daseen1",
     "properties": {
       "name": "Daseen Service",
-      "contenttype": "application/json"
+      "contenttype": "application/json",
+      "baseUrl": "https://api.daseen-staging.de"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "Daseen Service",
-      "baseUrl": "<DASEEN_BASE_URL>",
+      "baseUrl": "https://api.daseen-staging.de",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",

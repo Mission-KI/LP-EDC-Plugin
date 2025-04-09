@@ -61,8 +61,8 @@ public class MockUtils {
         requestBody.put("assetTypeInfo", "string");
         requestBody.put("transferTypeFlag", "static");
         requestBody.put("immutabilityFlag", "immutable");
-        requestBody.put("growthFlag", "KB");
-        requestBody.put("transferTypeFrequency", "second");
+        requestBody.put("growthFlag", "Bytes/day");
+        requestBody.put("transferTypeFrequency", "updates by second");
         requestBody.put("nda", "NDA text");
         requestBody.put("dpa", "DPA text");
         requestBody.put("dataLog", "Data Log Entry");

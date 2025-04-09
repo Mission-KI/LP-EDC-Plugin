@@ -1,9 +1,14 @@
 package io.nexyo.edp.extensions.services;
 
 import com.apicatalog.jsonld.StringUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nexyo.edp.extensions.exceptions.EdpException;
 import org.eclipse.edc.connector.controlplane.contract.spi.types.agreement.ContractAgreement;
+import org.eclipse.edc.connector.controlplane.contract.spi.types.negotiation.ContractNegotiation;
+import org.eclipse.edc.connector.controlplane.services.spi.catalog.CatalogService;
 import org.eclipse.edc.connector.controlplane.services.spi.contractagreement.ContractAgreementService;
+import org.eclipse.edc.connector.controlplane.services.spi.contractnegotiation.ContractNegotiationService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcessStates;
@@ -11,16 +16,21 @@ import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.spi.query.QuerySpec;
 
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 
 import static org.eclipse.edc.spi.query.Criterion.criterion;
 
 public class EdrService {
 
+    private final CatalogService catalogService;
+    private final ContractNegotiationService contractNegotiationService;
     private final ContractAgreementService contractAgreementService;
     private final TransferProcessService transferProcessService;
     private final EndpointDataReferenceStore edrStore;
 
-    public EdrService(ContractAgreementService contractAgreementService, TransferProcessService transferProcessService, EndpointDataReferenceStore edrStore) {
+    public EdrService(CatalogService catalogService, ContractNegotiationService contractNegotiationService, ContractAgreementService contractAgreementService, TransferProcessService transferProcessService, EndpointDataReferenceStore edrStore) {
+        this.catalogService = catalogService;
+        this.contractNegotiationService = contractNegotiationService;
         this.contractAgreementService = contractAgreementService;
         this.transferProcessService = transferProcessService;
         this.edrStore = edrStore;
@@ -96,5 +106,21 @@ public class EdrService {
             throw new EdpException("Contract agreement not found for contract ID: " + contractId);
         }
         return contractAgreement;
+    }
+
+    public String getServiceBaseUrlFromMetadata(String contractAgreementId) {
+        var negotiations = this.contractNegotiationService.search(QuerySpec.Builder.newInstance().filter(criterion("contractAgreement.id", "=", contractAgreementId)).build());
+        var negotiation = negotiations.getContent().stream().findFirst().orElseThrow(() -> new EdpException("Negotiation not found for contract agreement ID: " + contractAgreementId));
+        var offerAssetId = negotiation.getContractOffers().stream().findFirst().orElseThrow(() -> new EdpException("Offer not found for negotiation ID: " + negotiation.getId())).getAssetId();
+
+        var result = this.catalogService.requestDataset(offerAssetId, negotiation.getCounterPartyId(), negotiation.getCounterPartyAddress(), "dataspace-protocol-http").join();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(result.getContent());
+            return jsonNode.get("baseUrl").asText();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse the response", e);
+        }
     }
 }
