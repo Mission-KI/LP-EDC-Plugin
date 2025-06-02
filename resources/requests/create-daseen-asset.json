@@ -4,19 +4,18 @@
     },
     "@id": "daseen1",
     "properties": {
-      "name": "Daseen Service",
-      "contenttype": "application/json",
-      "baseUrl": "http://localhost:8081"
+      "name": "Daseen Service"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "Daseen Service",
-      "baseUrl": "http://localhost:8081",
+      "baseUrl": "<DASEEN_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
       "proxyBody": "true",
+      "header:x-service-base-url": "<DASEEN_BASE_URL>",
       "authKey": "Authorization",
-      "authCode": "Bearer api-key"
+      "authCode": "Bearer <DASEEN_API_KEY>"
     }
   }

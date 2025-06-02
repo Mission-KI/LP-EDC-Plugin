@@ -55,10 +55,6 @@ public class DaseenService {
                 final var daseenAuthorizationFromContract = this.edrService.getEdrProperty(contractId,
                                 ConfigurationUtils.EDR_PROPERTY_EDPS_AUTH_KEY);
 
-                // var jsonb = JsonbBuilder.create();
-                // var requestBody = MockUtils.createRequestBody(assetId);
-                // String jsonRequestBody = jsonb.toJson(requestBody);
-
                 var apiResponse = httpClient.target(String.format("%s/connector/edp/", daseenBaseUrlFromContract))
                                 .request()
                                 .header("accept", "*/*")
@@ -91,8 +87,6 @@ public class DaseenService {
                                 .info(String.format("Publishing Resource for Asset %s to Daseen...",
                                                 daseenResourceDto.getAssetId()));
 
-                final var daseenBaseUrl = this.edrService.getServiceBaseUrlFromMetadata(daseenResourceDto.getContractId());
-
                 // TODO: replace daseenAuthorization with proper auth mechanism
                 final var daseenAuthorization = ConfigurationUtils.readStringProperty("edp.daseen.api", "key");
 
@@ -101,8 +95,7 @@ public class DaseenService {
                                 .method(HttpMethod.PUT)
                                 .addAdditionalHeader("accept", "application/json")
                                 .addAdditionalHeader("Authorization", String.format("Bearer %s", daseenAuthorization))
-                                .baseUrl(String.format("%s/connector/edp/%s/edp-result.zip/", daseenBaseUrl,
-                                                daseenResourceDto.getResourceId()))
+                                .baseUrl(daseenResourceDto.getUploadUrl())
                                 .build();
 
                 var transferProcess = this.edrService.getCurrentTransferProcess(daseenResourceDto.getContractId());

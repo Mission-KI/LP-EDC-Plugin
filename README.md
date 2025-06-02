@@ -133,7 +133,7 @@ The EDPS and DASEEN service credentials also need to be updated in the asset con
 
 2. For DASEEN service in `resources/requests/create-daseen-asset.json`:
    - Replace `<DASEEN_BASE_URL>` with your DASEEN base URL
-   - Replace `<API_KEY>` with your DASEEN API key
+   - Replace `<DASEEN_API_KEY>` with your DASEEN API key
 
 ### 1. Start the EDC server
 
