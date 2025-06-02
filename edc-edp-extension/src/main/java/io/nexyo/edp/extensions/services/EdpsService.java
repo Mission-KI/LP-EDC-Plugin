@@ -83,7 +83,7 @@ public class EdpsService {
 
                         // map upload url to correct url
                         String baseUrl = edpsJobResponseDto.uploadUrl().replace("/api/", "/v1/dataspace/analysisjob/");
-                        String uploadUrl = baseUrl + "/data/file.bin";
+                        String uploadUrl = baseUrl + "/data/file.csv";
                         String resultUrl = baseUrl + "/result";
                         edpsJobResponseDto = new EdpsJobResponseDto(
                             edpsJobResponseDto.jobUuid(),
