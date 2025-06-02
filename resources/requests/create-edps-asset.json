@@ -4,17 +4,16 @@
     },
     "@id": "edps1",
     "properties": {
-      "name": "EDPS Service",
-      "contenttype": "application/json",
-      "baseUrl": "http://localhost:8081"
+      "name": "EDPS Service"
     },
     "dataAddress": {
       "type": "HttpData",
       "name": "EDPS Service",
-      "baseUrl": "http://localhost:8081",
+      "baseUrl": "<EDPS_BASE_URL>",
       "proxyPath": "true",
       "proxyMethod": "true",
       "proxyQueryParams": "true",
-      "proxyBody": "true"
+      "proxyBody": "true",
+      "header:x-service-base-url": "<EDPS_BASE_URL>"
     }
   }
