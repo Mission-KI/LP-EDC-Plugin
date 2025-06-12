@@ -64,7 +64,7 @@ public class DaseenService {
     public DaseenCreateResourceResponseDto createDaseenResource(String assetId) {
         this.logger.info(String.format("Creating Daseen Resource for Asset: %s...", assetId));
 
-        var apiResponse = httpClient.target(String.format("%s/connector/edp", this.daseenBaseUrl))
+        var apiResponse = httpClient.target(String.format("%s/connector/edp/", this.daseenBaseUrl))
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(MockUtils.createRequestBody(assetId), MediaType.APPLICATION_JSON));
 
